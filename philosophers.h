@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/25 21:01:29 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/26 07:51:34 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 //MAIN.C
 
 //INPUT_CHECK.C
-int		is_valid_input(char **argv);
+t_philo		is_valid_input(char **argv);
 
 //UTILS.C
 size_t		ft_strlen(const char *s);

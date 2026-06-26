@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/25 20:39:49 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/26 07:50:45 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,3 @@ int main(int argc, char **argv)
 	return (SUCCESS);
 }
 
-t_philo	*t_philo_init(char **argv)
-{
-	t_philo *node;
-
-	node = malloc(sizeof(t_philo));
-	if (!node)
-		return (NULL);
-}
