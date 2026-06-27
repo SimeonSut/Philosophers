@@ -1,8 +1,8 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -g
+CFLAGS = -Wall -Wextra -Werror -pthread -g
 
-SRC = main.c util.c input_check.c
+SRC = main.c utils.c input_check.c
 
 HDR = philosophers.h
 
@@ -10,7 +10,7 @@ NAME = philo
 
 all: $(NAME)
 
-$(NAME) = $(SRC) $(HDR)
+$(NAME): $(SRC)
 	@$(CC) $(CFLAGS) $(SRC) -o $@
 
 clean:

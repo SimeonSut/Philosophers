@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/25 21:01:18 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/27 18:08:49 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-long long	ft_atoll(const char *nptr)
+int	ft_atoi(const char *nptr)
 {
-	long long	result;
-	int			sign;
+	int	result;
+	int	sign;
 
 	result = 0;
 	sign = 1;
@@ -54,4 +54,9 @@ int	ft_strcmp(char *s1, char *s2)
 		s2++;
 	}
 	return ((*s1 - *s2));
+}
+
+void	state_change_msg(int timestamp, int philo_n, char *state)
+{
+	return ;
 }
