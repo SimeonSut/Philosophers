@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 17:03:28 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/28 21:44:28 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ static t_philo	*t_philo_init(char **argv)
 	node->mutex = mutex_initializer(node->n_of_philos);
 	if (!node->mutex)
 		return (free(node->thread), free(node), NULL);
-	node->time = NULL;
+	node->start_time = NULL;
 	return (node);
 }
 

@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 16:26:32 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/28 22:25:46 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ typedef struct  s_philo
 	int				t_must_eat;
 	pthread_t		*thread;
 	pthread_mutex_t	*mutex;
-	t_time			*time;
+	t_time			*start_time;
 }				t_philo;
 
 //---MAIN.C---
@@ -62,6 +62,11 @@ t_philo			*check_n_initialize(char **argv);
 size_t			ft_strlen(const char *s);
 int				ft_atoi(const char *nptr);
 int				ft_strcmp(char *s1, char *s2);
+
+//---ROUTINE_UTILS.C
+char			*ft_freejoin(char *s1, char *s2);
+char			*ft_itoa(int n);
+
 
 typedef enum e_exit
 {

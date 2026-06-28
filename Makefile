@@ -2,7 +2,7 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -pthread -g
 
-SRC = main.c utils.c input_check.c
+SRC = main.c input_check.c input_check_utils.c routine_utils.c
 
 HDR = philosophers.h
 

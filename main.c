@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 17:54:22 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/28 22:29:25 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static void	set_time(t_philo *node);
 static void	set_threads(t_philo *node);
-static void	*routine(void *arg);
+static void	*routine_fork(void *arg);
 
 int main(int argc, char **argv)
 {
@@ -39,25 +39,31 @@ static void	set_threads(t_philo *node)
 
 	philos = node->n_of_philos;
 	while (philos >= 0)
-		pthread_create(&(node->thread[--philos]), NULL, &routine, (void *)node);
+	{
+		pthread_create(&(node->thread[--philos]), NULL, &routine_fork, (void *)node);
+	}
 	return ;
 }
 
 static void	set_time(t_philo *node)
 {
-	node->time = malloc(sizeof(t_time));
-	if (!node->time)
+	node->start_time = malloc(sizeof(t_time));
+	if (!node->start_time)
 		return ;
-	if (gettimeofday(node->time, NULL) == -1)
+	if (gettimeofday(node->start_time, NULL) == -1)
 		return ;
 }
 
-static void	*routine(void *arg)
+static void	*routine_fork(void *arg)
 {
-	t_philo	*node;
+	struct timeval	cur_time;
+	char			*fork_msg;
 
-	node = (t_philo *)arg;
-	write(STDOUT_FILENO, "veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long line\n", 46);
+	gettimeofday(&cur_time, NULL);
+	fork_msg = ft_itoa(cur_time.tv_sec - ((t_philo *)arg)->start_time->tv_sec);
+	if (!fork_msg)
+		return (NULL);
+	write(STDOUT_FILENO, &fork_msg, strlen(fork_msg));
 	return (NULL);
 }
 
