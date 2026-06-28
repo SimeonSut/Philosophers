@@ -6,34 +6,17 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/27 23:47:36 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/28 17:03:28 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static int		int_filter(char *input, int len);
-static int  	is_all_digit(char *input);
-static t_philo	*t_philo_init(char **argv);
+static int				int_filter(char *input, int len);
+static int  			is_all_digit(char *input);
+static t_philo			*t_philo_init(char **argv);
+static pthread_mutex_t	*mutex_initializer(int n_of_philos);
 
-/*IS_VALID_INPUT
- * 
- * 	Input :
- * 		The argv argument provided with main
- * 
- * 	Behaviour :
- * 		Checks the validity of input and initiates the data structure
- * 
- * 	Return :
- * 		The data strucure on success
- * 		NULL on failure
- * 
- * 	Description :
- * 		Central function of the parsing of philosophers
- * 		Checks, by calling its helpers, if all inputs are positive
- * 		non-zero integers, which represent valid input for
- * 		the project.
- */
 t_philo	*check_n_initialize(char **argv)
 {
 	int		i;
@@ -159,7 +142,7 @@ static t_philo	*t_philo_init(char **argv)
 		return (NULL);
 	node->n_of_philos = ft_atoi(argv[1]);
 	if (node->n_of_philos <= 0)
-		return (free(node), write(2, "wrong number of philosophers\n", 30), NULL);
+		return (free(node), write(2, "wrong philosophers number\n", 27), NULL);
 	node->tt_die = ft_atoi(argv[2]);
 	if (node->tt_die <= 0)
 		return (free(node), write(2, "wrong time to die\n", 19), NULL);
@@ -172,9 +155,45 @@ static t_philo	*t_philo_init(char **argv)
 	node->thread = malloc(node->n_of_philos * sizeof(pthread_t));
 	if (!node->thread)
 		return (free(node), NULL);
-	node->mutex = malloc(node->n_of_philos * sizeof(pthread_mutex_t));
+	node->mutex = mutex_initializer(node->n_of_philos);
 	if (!node->mutex)
 		return (free(node->thread), free(node), NULL);
-	node->start_time = -1;
+	node->time = NULL;
 	return (node);
+}
+
+/*MUTEX_INITIALIZER
+ * 
+ * 	Input :
+ * 		The n_of_philos number of philosophers
+ * 
+ * 	Behaviour :
+ * 		Allocated an array of the correct amount of mutexes an initializes it
+ * 
+ * 	Returns :
+ * 		The allocated and initilialized array on success
+ * 		NULL on failure
+ * 
+ * 	Description :
+ * 		Once the array is allocated iterates while calling the mutex init
+ * 		given function
+ */
+static pthread_mutex_t	*mutex_initializer(int n_of_philos)
+{
+	int				i;
+	pthread_mutex_t	*mutex;
+
+	i = 0;
+	mutex = malloc(n_of_philos * sizeof(pthread_mutex_t));
+	if (!mutex)
+		return (NULL);
+	while (i < n_of_philos)
+	{
+		if (pthread_mutex_init(&(mutex[i++]), NULL) != 0)
+		{
+			write(2, "pthread_mutex_init error\n", 26);
+			return (free(mutex), NULL);
+		}
+	}
+	return (mutex);
 }
