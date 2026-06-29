@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 22:29:25 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/29 21:01:36 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 static void	set_time(t_philo *node);
 static void	set_threads(t_philo *node);
 static void	*routine_fork(void *arg);
+static void join_all_threads(t_philo *node);
 
 int main(int argc, char **argv)
 {
@@ -30,17 +31,20 @@ int main(int argc, char **argv)
 		return (ERROR);
 	set_time(node);
 	set_threads(node);
+	join_all_threads(node);
 	return (SUCCESS);
 }
 
 static void	set_threads(t_philo *node)
 {
-	int	philos;
+	int		philos;
 
 	philos = node->n_of_philos;
+	node->thrd_i = &philos;
 	while (philos >= 0)
 	{
-		pthread_create(&(node->thread[--philos]), NULL, &routine_fork, (void *)node);
+		pthread_create(&(node->thread[philos]), NULL, &routine_fork, (void *)node);
+		philos--;
 	}
 	return ;
 }
@@ -54,16 +58,24 @@ static void	set_time(t_philo *node)
 		return ;
 }
 
+static void join_all_threads(t_philo *node)
+{
+	int	i;
+
+	i = 0;
+	while (i < node->n_of_philos)
+	{
+		pthread_join(node->thread[i], NULL);
+		i++;
+	}
+}
+
 static void	*routine_fork(void *arg)
 {
-	struct timeval	cur_time;
-	char			*fork_msg;
+	char	*msg;
 
-	gettimeofday(&cur_time, NULL);
-	fork_msg = ft_itoa(cur_time.tv_sec - ((t_philo *)arg)->start_time->tv_sec);
-	if (!fork_msg)
-		return (NULL);
-	write(STDOUT_FILENO, &fork_msg, strlen(fork_msg));
+	msg = ft_itoa(*((t_philo *)arg)->thrd_i);
+	write(STDOUT_FILENO, msg, strlen(msg));
 	return (NULL);
 }
 

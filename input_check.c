@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 21:44:28 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/29 19:40:58 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ t_philo	*check_n_initialize(char **argv)
 		if (node->t_must_eat <= 0)
 			return (free(node), write(2, "wrong must eat input\n", 22), NULL);
 	}
+	node->thrd_i = 0;
 	return (node);
 }
 

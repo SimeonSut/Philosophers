@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 22:25:46 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/29 19:36:21 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef struct  s_philo
 	int				tt_eat;
 	int				tt_sleep;
 	int				t_must_eat;
+	int				*thrd_i;
 	pthread_t		*thread;
 	pthread_mutex_t	*mutex;
 	t_time			*start_time;
