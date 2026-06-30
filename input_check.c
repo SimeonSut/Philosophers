@@ -6,39 +6,60 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/29 19:40:58 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/30 21:23:08 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static int				int_filter(char *input, int len);
-static int  			is_all_digit(char *input);
-static t_philo			*t_philo_init(char **argv);
-static pthread_mutex_t	*mutex_initializer(int n_of_philos);
+static int		int_filter(char *input, int len);
+static int  	is_all_digit(char *input);
+static t_philo	*t_philo_init(char **argv);
+static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i);
 
+/*CHECK_N_INITIALIZE
+ * 
+ * 	Input :
+ * 		the argv argument of input
+ * 
+ * 	Behaviour :
+ * 		Verifies the validity of input and intiates struct
+ * 
+ * 	Return :
+ * 		The initialize node on succes
+ * 		NULL on error at any point
+ * 
+ * 	Description :
+ * 		Uses all static functions of this file
+ * 		Checks for positive-integers-only input
+ * 		Initiates the node, then the chainlist t_list within it
+ */
 t_philo	*check_n_initialize(char **argv)
 {
 	int		i;
 	int 	arg_len;
 	t_philo	*node;
+	t_list	*first;
 
-	i = 1;
+	i = 0;
 	arg_len = 0;
-	while (argv[i])
-	{
-		arg_len = (int)ft_strlen(argv[i]);
-		if (int_filter(argv[i++], arg_len) == ERROR)
+	while (argv[++i])
+		if (int_filter(argv[i], (int)ft_strlen(argv[i])) == ERROR)
 			return (NULL);
-	}
 	node = t_philo_init(argv);
-	if (argv[5])
+	if (!node)
+		return (NULL);
+	first = NULL;
+	i = 1;
+	while (i <= node->n_of_philos)
 	{
-		node->t_must_eat = ft_atoi(argv[5]);
-		if (node->t_must_eat <= 0)
-			return (free(node), write(2, "wrong must eat input\n", 22), NULL);
+		node->list = t_list_init(node->list, node->list, i++);
+		if (!node->list->next)
+			return (NULL);//chainlist to free here
+		if (node->list->i == 1)
+			first = node->list;
+		node->list = node->list->next;
 	}
-	node->thrd_i = 0;
 	return (node);
 }
 
@@ -153,48 +174,57 @@ static t_philo	*t_philo_init(char **argv)
 	node->tt_sleep = ft_atoi(argv[4]);
 	if (node->tt_sleep <= 0)
 		return (free(node), write(2, "wrong time to sleep\n", 21), NULL);
-	node->thread = malloc(node->n_of_philos * sizeof(pthread_t));
-	if (!node->thread)
-		return (free(node), NULL);
-	node->mutex = mutex_initializer(node->n_of_philos);
-	if (!node->mutex)
-		return (free(node->thread), free(node), NULL);
+	if (argv[5])
+	{
+		node->t_must_eat = ft_atoi(argv[5]);
+		if (node->t_must_eat <= 0)
+			return (free(node), write(2, "wrong must eat input\n", 22), NULL);
+	}
 	node->start_time = NULL;
 	return (node);
 }
 
-/*MUTEX_INITIALIZER
- * 
+/*T_LIST_INIT
+ *
  * 	Input :
- * 		The n_of_philos number of philosophers
+ * 		The first t_list struct pre, the i index
  * 
  * 	Behaviour :
- * 		Allocated an array of the correct amount of mutexes an initializes it
+ * 		Allocates a chainlist
  * 
  * 	Returns :
- * 		The allocated and initilialized array on success
- * 		NULL on failure
+ * 		The newly allocated struct on success
+ * 		NULL on error
  * 
  * 	Description :
- * 		Once the array is allocated iterates while calling the mutex init
- * 		given function
+ * 		Allocates the struct and the thread + mutex within it
+ * 		On error on any of these steps, frees what it allocated so far
+ * 		and return NULL.
  */
-static pthread_mutex_t	*mutex_initializer(int n_of_philos)
+static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i)
 {
-	int				i;
-	pthread_mutex_t	*mutex;
+	t_list	*new;
 
-	i = 0;
-	mutex = malloc(n_of_philos * sizeof(pthread_mutex_t));
-	if (!mutex)
+	new = malloc(sizeof(t_list));
+	if (!new)
 		return (NULL);
-	while (i < n_of_philos)
+	new->i = i;
+	new->mtx_state =  UNLOCKED;
+	new->thread = malloc(sizeof(pthread_t));
+	if (!new->thread)
+		return (free(new), NULL);
+	new->mutex = malloc(sizeof(pthread_mutex_t));
+	if (!new->mutex)
+		return (free(new->thread), free(new), NULL);
+	if (pthread_mutex_init(new->mutex, NULL) != 0)
+		return (free(new->thread), free(new), NULL);
+	new->prev = pre;
+	if (new->i != node->n_of_philos)
+		new->next = NULL;
+	else
 	{
-		if (pthread_mutex_init(&(mutex[i++]), NULL) != 0)
-		{
-			write(2, "pthread_mutex_init error\n", 26);
-			return (free(mutex), NULL);
-		}
+		new->next = first;
+		first->prev = new;
 	}
-	return (mutex);
+	return (new);
 }

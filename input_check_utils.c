@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   input_check_utils.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/28 13:55:16 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/06/30 17:36:22 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,3 +60,12 @@ void	state_change_msg(int timestamp, int philo_n, char *state)
 {
 	return ;
 }*/
+
+int	set_time(t_philo *node)
+{
+	node->start_time = malloc(sizeof(t_time));
+	if (!node->start_time)
+		return (ERROR);
+	if (gettimeofday(node->start_time, NULL) == -1)
+		return (ERROR);
+}
