@@ -6,14 +6,13 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/30 21:44:13 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/01 21:56:06 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
 static void	*routine(void	*arg);
-static void	mutex_lock(int	*forks, t_philo	*node, t_list *lst);
 
 void		thread_setup(t_philo *node)
 {
@@ -29,37 +28,21 @@ void		thread_setup(t_philo *node)
 
 static void	*routine(void	*arg)
 {
-	int		forks[2];
+	int		phindex;
 	t_list	*lst;
 
-	forks[LEFT] = NOT_TAKEN;
-	forks[RIGHT] = NOT_TAKEN;
+	phindex = 0;
 	lst = ((t_philo *)arg)->list;
+	pthread_mutex_lock(lst->mutex);
 	return (arg);
 }
 
-static void	find_forks(int	*forks, t_philo	*node, t_list *lst)
+static void	find_index(t_list *lst, int *phindex)
 {
-	while (1/*the time doesnt exceed time to die (or its before the first pick of forks)*/)
+	if (*phindex == 0 && lst->i_taken == NOT_TAKEN)
 	{
-		if (lst->mtx_state == UNLOCKED && (forks[LEFT] == 0 || forks[RIGHT] == 0))
-			mutex_lock(forks, node, lst);
-		if (forks[LEFT] == TAKEN && forks[RIGHT] == TAKEN)
-			break ;
-		lst = lst->next;
-	}
-}
-
-static void	mutex_lock(int	*forks, t_philo	*node, t_list *lst)
-{
-	if (lst->mtx_state == UNLOCKED && pthread_mutex_lock(lst->mutex) == 0)
-	{
-		lst->mtx_state = LOCKED;
-		if (forks[LEFT] == NOT_TAKEN)
-			forks[LEFT] = TAKEN;/*has taken fork*/
-		else if (forks[LEFT] == TAKEN && forks[RIGHT] == NOT_TAKEN)
-			forks[RIGHT] = TAKEN;/*has taken fork*/
-		else if (forks[LEFT] == TAKEN && forks[RIGHT] == TAKEN)
-			;/*philosophers is eating*/
+		*phindex = lst->i;
+		lst->i_taken = TAKEN;
+		return ;
 	}
 }

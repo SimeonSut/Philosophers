@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/30 19:00:35 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/01 21:55:14 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ typedef struct timeval t_time;
 typedef struct	s_list
 {
 	int				i;
-	int				mtx_state;
+	int				i_taken;
 	pthread_t		*thread;
 	pthread_mutex_t	*mutex;
 	struct	s_list	*prev;
