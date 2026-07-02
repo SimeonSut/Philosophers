@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/01 21:55:14 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/02 07:48:44 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ typedef struct timeval t_time;
 typedef struct	s_list
 {
 	int				i;
-	int				i_taken;
 	pthread_t		*thread;
 	pthread_mutex_t	*mutex;
 	struct	s_list	*prev;
@@ -41,6 +40,7 @@ typedef struct  s_philo
 	int				t_must_eat;
 	t_time			*start_time;
 	t_list			*list;
+	pthread_mutex_t	*i_mtx;
 }				t_philo;
 
 //---MAIN.C---

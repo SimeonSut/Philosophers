@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input_check.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/01 21:55:59 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/02 07:48:20 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,6 @@ static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i)
 	if (!new)
 		return (NULL);
 	new->i = i;
-	new->i_taken = NOT_TAKEN;
 	new->thread = malloc(sizeof(pthread_t));
 	if (!new->thread)
 		return (free(new), NULL);

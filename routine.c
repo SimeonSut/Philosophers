@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/01 21:56:06 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/02 07:55:44 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,11 @@ void		thread_setup(t_philo *node)
 static void	*routine(void	*arg)
 {
 	int		phindex;
-	t_list	*lst;
 
 	phindex = 0;
-	lst = ((t_philo *)arg)->list;
-	pthread_mutex_lock(lst->mutex);
-	return (arg);
-}
-
-static void	find_index(t_list *lst, int *phindex)
-{
-	if (*phindex == 0 && lst->i_taken == NOT_TAKEN)
-	{
-		*phindex = lst->i;
-		lst->i_taken = TAKEN;
-		return ;
-	}
+	pthread_mutex_lock(((t_philo *)arg)->i_mtx);
+	phindex = ((t_philo *)arg)->list->i;
+	((t_philo *)arg)->list = ((t_philo *)arg)->list->next;
+	pthread_mutex_unlock(((t_philo *)arg)->i_mtx);
+	return (arg)
 }
