@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/02 20:49:36 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 00:08:22 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ typedef struct	s_list
 {
 	int				i;
 	pthread_t		*thread;
-	pthread_mutex_t	*mutex;
+	pthread_mutex_t	*fork_mtx;
 	struct	s_list	*prev;
 	struct	s_list	*next;
 }				t_list;
@@ -38,8 +38,9 @@ typedef struct  s_philo
 	int				tt_eat;
 	int				tt_sleep;
 	int				t_must_eat;
-	t_time			*start_time;
+	long long		microstart;
 	t_list			*list;
+	pthread_mutex_t	**gates_mtx;
 	pthread_mutex_t	*i_mtx;
 }				t_philo;
 
@@ -65,20 +66,31 @@ typedef struct  s_philo
  * 		non-zero integers, which represent valid input for
  * 		the project.
  */
-t_philo			*check_n_initialize(char **argv);
+t_philo	*check_n_initialize(char **argv);
 
-//---INPUT_CHECK_UTILS.C
-size_t			ft_strlen(const char *s);
-int				ft_atoi(const char *nptr);
-int				ft_strcmp(char *s1, char *s2);
-int				set_time(t_philo *node);
+//---INPUT_CHECK_UTILS.C---
+size_t	ft_strlen(const char *s);
+int		ft_atoi(const char *nptr);
+int		ft_strcmp(char *s1, char *s2);
+int		set_time(t_philo *node);
+int		t_philo_additional_setup(t_philo *node, char **argv);
 
-//---ROUTINE_UTILS.C
-char			*ft_freejoin(char *s1, char *s2);
-char			*ft_itoa(int n);
+//---ROUTINE_UTILS.C---
+char	*ft_freejoin(char *s1, char *s2);
+char	*ft_itoa(int n);
 
 //---ROUTINE.C---
 void			thread_setup(t_philo *node);
+
+//---TIME_AND_STATES.C---
+void	fill_states_times(t_philo *node, int *states);
+void	state(t_philo *node, char *state, int time_to_state, int time_to_die);
+
+//---CYCLES.C---
+/*void uneven_uneven_cycle(t_list *lst);
+void uneven_even_cycle(t_list *lst);
+void even_uneven_cycle(t_list *lst);
+void even_even_cycle(t_list *lst);*/
 
 typedef enum e_exit
 {
@@ -89,7 +101,10 @@ typedef enum e_exit
 	LEFT = 0,
 	RIGHT = 1,
 	NOT_TAKEN = 0,
-	TAKEN = 1
+	TAKEN = 1,
+	DIE = 0,
+	EAT = 1,
+	SLEEP = 0
 } t_exit;
 
 #endif

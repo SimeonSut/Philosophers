@@ -6,11 +6,13 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/06/30 17:36:22 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/04 23:34:27 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+static int	set_time(t_philo *node);
 
 size_t	ft_strlen(const char *s)
 {
@@ -61,11 +63,39 @@ void	state_change_msg(int timestamp, int philo_n, char *state)
 	return ;
 }*/
 
-int	set_time(t_philo *node)
+int	t_philo_additional_setup(t_philo *node, char **argv)
 {
-	node->start_time = malloc(sizeof(t_time));
-	if (!node->start_time)
+	int	gates_nbr;
+
+	gates_nbr = node->n_of_philos / 2;
+	if (node->n_of_philos % 2 != 0)
+		gates_nbr++;
+	if (argv[5])
+	{
+		node->t_must_eat = ft_atoi(argv[5]);
+		if (node->t_must_eat <= 0)
+			return (write(2, "wrong must eat input\n", 22), ERROR);
+	}
+	if (set_time(node) == ERROR)
 		return (ERROR);
-	if (gettimeofday(node->start_time, NULL) == -1)
+	node->gates_mtx = malloc(gates_nbr * sizeof(pthread_mutex_t *));
+	if (!node->gates_mtx)
 		return (ERROR);
+	node->i_mtx = malloc(sizeof(pthread_mutex_t));
+	if (!node->i_mtx)
+		return (free(node->gates_mtx), ERROR);
+	return (SUCCESS);
+}
+
+static int	set_time(t_philo *node)
+{
+	t_time	*tm;
+
+	tm = malloc(sizeof(t_time));
+	if (!tm)
+		return (ERROR);
+	if (gettimeofday(tm, NULL) == -1)
+		return (ERROR);
+	node->microstart = (tm->tv_sec * 1000000 + tm->tv_usec);
+	free(tm);
 }

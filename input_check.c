@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/02 20:49:38 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/04 18:27:11 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,13 +174,8 @@ static t_philo	*t_philo_init(char **argv)
 	node->tt_sleep = ft_atoi(argv[4]);
 	if (node->tt_sleep <= 0)
 		return (free(node), write(2, "wrong time to sleep\n", 21), NULL);
-	if (argv[5])
-	{
-		node->t_must_eat = ft_atoi(argv[5]);
-		if (node->t_must_eat <= 0)
-			return (free(node), write(2, "wrong must eat input\n", 22), NULL);
-	}
-	node->start_time = NULL;
+	if (t_philo_additional_setup(node, argv) == ERROR)
+		return (free(node), NULL);
 	return (node);
 }
 
@@ -212,10 +207,10 @@ static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i)
 	new->thread = malloc(sizeof(pthread_t));
 	if (!new->thread)
 		return (free(new), NULL);
-	new->mutex = malloc(sizeof(pthread_mutex_t));
-	if (!new->mutex)
+	new->fork_mtx = malloc(sizeof(pthread_mutex_t));
+	if (!new->fork_mtx)
 		return (free(new->thread), free(new), NULL);
-	if (pthread_mutex_init(new->mutex, NULL) != 0)
+	if (pthread_mutex_init(new->fork_mtx, NULL) != 0)
 		return (free(new->thread), free(new), NULL);
 	new->prev = pre;
 	if (new->i != node->n_of_philos)
