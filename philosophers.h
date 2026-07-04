@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 00:08:22 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 00:49:14 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct  s_philo
 	long long		microstart;
 	t_list			*list;
 	pthread_mutex_t	**gates_mtx;
-	pthread_mutex_t	*i_mtx;
+	pthread_mutex_t	*t_philo_mtx;
 }				t_philo;
 
 //---MAIN.C---
@@ -84,7 +84,7 @@ void			thread_setup(t_philo *node);
 
 //---TIME_AND_STATES.C---
 void	fill_states_times(t_philo *node, int *states);
-void	state(t_philo *node, char *state, int time_to_state, int time_to_die);
+void	state(t_philo *node, char *state, int time_to_state, int phindex);
 
 //---CYCLES.C---
 /*void uneven_uneven_cycle(t_list *lst);

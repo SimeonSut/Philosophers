@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_and_states.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/04 23:50:35 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 00:07:42 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 00:53:02 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,20 @@ void	fill_states_times(t_philo *node, int *states)
 	states[SLEEP] = node->tt_sleep;
 }
 
-void	state(t_philo *node, char *state, int time_to_state, int time_to_die)
+void	state(t_philo *node, char *state, int time_to_state, int phindex)
 {
-	t_time	*tm;
-	long	micro_start;
+	t_time		*tm;
+	long long	microstart;
+	long long 	timestamp;
 
 	tm = malloc(sizeof(tm));
 	if (!tm)
 		return ;//malloc error
 	if (gettimeofday(tm, NULL) == -1)
 		return ;//gettimeofday error
-	micro_start = tm->tv_sec * 1000000 + tm->tv_usec;
+	pthread_mutex_lock(node->t_philo_mtx);
+	microstart = node->microstart;
+	pthread_mutex_unlock(node->t_philo_mtx);
+	timestamp = (tm->tv_sec * 1000000 + tm->tv_usec) - microstart;
 	return ;
 }

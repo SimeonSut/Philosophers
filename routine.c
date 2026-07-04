@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 00:07:57 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 00:55:01 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static void	*start(void	*arg)
 	int		states[3];
 
 	phindex = 0;
-	pthread_mutex_lock(((t_philo *)arg)->i_mtx);
+	pthread_mutex_lock(((t_philo *)arg)->t_philo_mtx);
 	node = ((t_philo *)arg);
 	lst = node->list;
 	phindex = node->list->i;
@@ -48,7 +48,7 @@ static void	*start(void	*arg)
 	if (phindex % 2 == 0)
 		pthread_mutex_lock(node->gates_mtx[((phindex - 2) / 2)]);
 	node->list = node->list->next;
-	pthread_mutex_unlock(node->i_mtx);
+	pthread_mutex_unlock(node->t_philo_mtx);
 	if (phindex % 2 == 0)
 	{
 		even_philos(node, lst, phindex, states);
@@ -66,8 +66,10 @@ static void even_philos(t_philo *node, t_list *lst, int phindex, int *tms)
 	while (1)
 	{
 		pthread_mutex_lock(lst->fork_mtx);
+		//has taken fork
 		pthread_mutex_lock(lst->next->fork_mtx);
-		state(node, "eating", tms[EAT], tms[DIE]);
+		//has taken fork
+		state(node, "eating", tms[EAT], phindex);
 		pthread_mutex_unlock(lst->fork_mtx);
 		pthread_mutex_unlock(lst->next->fork_mtx);
 		/*sleeping*/;
@@ -80,8 +82,10 @@ static void	odd_philos(t_philo *node, t_list *lst, int phindex, int *tms)
 	while (1)
 	{
 		pthread_mutex_lock(lst->fork_mtx);
+		//has taken fork
 		pthread_mutex_lock(lst->next->fork_mtx);
-		/*eating*/;
+		//has taken fork
+		state(node, "eating", tms[EAT], phindex);
 		pthread_mutex_unlock(lst->fork_mtx);
 		pthread_mutex_unlock(lst->next->fork_mtx);
 		/*sleeping*/;
