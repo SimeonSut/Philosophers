@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_and_states.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/04 23:50:35 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 00:53:02 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/05 20:00:25 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,20 +19,54 @@ void	fill_states_times(t_philo *node, int *states)
 	states[SLEEP] = node->tt_sleep;
 }
 
-void	state(t_philo *node, char *state, int time_to_state, int phindex)
+void	state(t_philo *node, int time_to_state, int phindex)
 {
-	t_time		*tm;
-	long long	microstart;
-	long long 	timestamp;
+	struct timeval		tm;
+	long long			microstart;
+	long long			check_tm;
+	int					timestamp;
 
-	tm = malloc(sizeof(tm));
-	if (!tm)
-		return ;//malloc error
-	if (gettimeofday(tm, NULL) == -1)
-		return ;//gettimeofday error
-	pthread_mutex_lock(node->t_philo_mtx);
+	pthread_mutex_lock(&node->t_philo_mtx);
 	microstart = node->microstart;
-	pthread_mutex_unlock(node->t_philo_mtx);
-	timestamp = (tm->tv_sec * 1000000 + tm->tv_usec) - microstart;
+	pthread_mutex_unlock(&node->t_philo_mtx);
+	if (gettimeofday(&tm, NULL) == -1)
+		return ;//gettimeofday error
+	timestamp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) /1000);
+	printf("%d %d is eating\n", timestamp, phindex);
+	//send_msg(timestamp, phindex, state);
+	check_tm = (long long)time_to_state * 1000LL;
+	while ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart < check_tm)
+	{
+		if (gettimeofday(&tm, NULL) == -1)
+			return ;//gettimeofday error
+	}
 	return ;
 }
+/*
+int	send_msg(int timestamp, int phindex, char *state)
+{
+	char	*msg;
+	char	*timestmp;
+	char	*philo_index;
+	char	*tmp;
+
+	timestmp = ft_itoa(timestamp);
+	philo_index = ft_itoa(phindex);
+	tmp = ft_strdup(" ");
+	if (!timestmp || !philo_index || !tmp)
+		return (ERROR);
+	msg = ft_freejoin(timestmp, tmp);
+	if (!msg)
+		return (free(timestmp), free(philo_index), free(tmp), ERROR);
+	msg = ft_freejoin(msg, philo_index);
+	if (!msg)
+		return (free(timestmp), free(tmp), ERROR);
+	tmp = ft_strdup(state);
+	if (!tmp)
+		return (free(timestmp), free(msg), ERROR);
+	msg = ft_freejoin(msg, tmp);
+	if (!msg)
+		return (free(timestmp), ERROR);
+	write(STDOUT_FILENO, msg, (int)ft_strlen(msg));
+	return (free(msg), free(timestmp), SUCCESS);
+}*/

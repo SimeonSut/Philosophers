@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/04 23:49:29 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 14:50:02 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,28 @@
 
 static char	ft_addnb(long n, int len);
 static long	ft_strcount(long n);
+
+char	*ft_strdup(const char *s)
+{
+	char	*duplicate;
+	size_t	i;
+	size_t	j;
+
+	i = 0;
+	j = 0;
+	while (s[i])
+		i++;
+	duplicate = malloc((i + 1) * sizeof(char));
+	if (!duplicate)
+		return (NULL);
+	duplicate[i] = '\0';
+	while (s[j])
+	{
+		duplicate[j] = s[j];
+		j++;
+	}
+	return (duplicate);
+}
 
 char	*ft_freejoin(char *s1, char *s2)
 {

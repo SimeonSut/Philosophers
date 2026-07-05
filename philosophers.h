@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 00:49:14 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/05 20:00:36 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,8 @@ typedef struct timeval t_time;
 typedef struct	s_list
 {
 	int				i;
-	pthread_t		*thread;
-	pthread_mutex_t	*fork_mtx;
-	struct	s_list	*prev;
+	pthread_t		thread;
+	pthread_mutex_t	fork_mtx;
 	struct	s_list	*next;
 }				t_list;
 
@@ -40,8 +39,8 @@ typedef struct  s_philo
 	int				t_must_eat;
 	long long		microstart;
 	t_list			*list;
-	pthread_mutex_t	**gates_mtx;
-	pthread_mutex_t	*t_philo_mtx;
+	pthread_mutex_t	*gates_mtx;
+	pthread_mutex_t	t_philo_mtx;
 }				t_philo;
 
 //---MAIN.C---
@@ -78,13 +77,15 @@ int		t_philo_additional_setup(t_philo *node, char **argv);
 //---ROUTINE_UTILS.C---
 char	*ft_freejoin(char *s1, char *s2);
 char	*ft_itoa(int n);
+char	*ft_strdup(const char *s);
 
 //---ROUTINE.C---
-void			thread_setup(t_philo *node);
+void	thread_setup(t_philo *node);
 
 //---TIME_AND_STATES.C---
 void	fill_states_times(t_philo *node, int *states);
-void	state(t_philo *node, char *state, int time_to_state, int phindex);
+void	state(t_philo *node, int time_to_state, int phindex);
+int		send_msg(int timestamp, int phindex, char *state);
 
 //---CYCLES.C---
 /*void uneven_uneven_cycle(t_list *lst);

@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/04 22:35:16 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 16:31:59 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,7 @@ int main(int argc, char **argv)
 	node = check_n_initialize(argv);
 	if (!node)
 		return (ERROR);
-	while (node->list->prev)
-		node->list = node->list->prev;
+	thread_setup(node);
 	return (SUCCESS);
 }
 

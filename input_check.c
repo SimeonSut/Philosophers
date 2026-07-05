@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/04 18:27:11 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/05 19:41:24 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int		int_filter(char *input, int len);
 static int  	is_all_digit(char *input);
 static t_philo	*t_philo_init(char **argv);
-static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i);
+static t_list	*t_list_init(t_philo *node, t_list *first, int i);
 
 /*CHECK_N_INITIALIZE
  * 
@@ -53,8 +53,8 @@ t_philo	*check_n_initialize(char **argv)
 	i = 1;
 	while (i <= node->n_of_philos)
 	{
-		node->list = t_list_init(node->list, node->list, i++);
-		if (!node->list->next)
+		node->list = t_list_init(node, first, i++);
+		if (!node->list)
 			return (NULL);//chainlist to free here
 		if (node->list->i == 1)
 			first = node->list;
@@ -196,7 +196,7 @@ static t_philo	*t_philo_init(char **argv)
  * 		On error on any of these steps, frees what it allocated so far
  * 		and return NULL.
  */
-static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i)
+static t_list	*t_list_init(t_philo *node, t_list *first, int i)
 {
 	t_list	*new;
 
@@ -204,21 +204,11 @@ static t_list	*t_list_init(t_philo *node, t_list *first, t_list *pre, int i)
 	if (!new)
 		return (NULL);
 	new->i = i;
-	new->thread = malloc(sizeof(pthread_t));
-	if (!new->thread)
+	if (pthread_mutex_init(&new->fork_mtx, NULL) != 0)
 		return (free(new), NULL);
-	new->fork_mtx = malloc(sizeof(pthread_mutex_t));
-	if (!new->fork_mtx)
-		return (free(new->thread), free(new), NULL);
-	if (pthread_mutex_init(new->fork_mtx, NULL) != 0)
-		return (free(new->thread), free(new), NULL);
-	new->prev = pre;
 	if (new->i != node->n_of_philos)
 		new->next = NULL;
 	else
-	{
 		new->next = first;
-		first->prev = new;
-	}
 	return (new);
 }
