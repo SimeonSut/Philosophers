@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 19:41:24 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/06 20:39:59 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,15 +49,14 @@ t_philo	*check_n_initialize(char **argv)
 	node = t_philo_init(argv);
 	if (!node)
 		return (NULL);
-	first = NULL;
 	i = 1;
-	while (i <= node->n_of_philos)
+	node->list = t_list_init(node, NULL, i);
+	first = node->list;
+	while (++i <= node->n_of_philos)
 	{
-		node->list = t_list_init(node, first, i++);
-		if (!node->list)
-			return (NULL);//chainlist to free here
-		if (node->list->i == 1)
-			first = node->list;
+		node->list->next = t_list_init(node, first, i);
+		if (!node || !node->list || !node->list->next)
+			return (NULL);//free all structs here
 		node->list = node->list->next;
 	}
 	return (node);
@@ -176,6 +175,10 @@ static t_philo	*t_philo_init(char **argv)
 		return (free(node), write(2, "wrong time to sleep\n", 21), NULL);
 	if (t_philo_additional_setup(node, argv) == ERROR)
 		return (free(node), NULL);
+	if (pthread_mutex_init(&node->t_philo_mtx, NULL) == -1)
+		return (NULL);//mutex init error, free to add here as well
+	if (pthread_mutex_init(&node->terminal_mtx, NULL) == -1)
+		return (NULL);//mutex init error, free to add here as well
 	return (node);
 }
 
@@ -204,6 +207,10 @@ static t_list	*t_list_init(t_philo *node, t_list *first, int i)
 	if (!new)
 		return (NULL);
 	new->i = i;
+	new->thread = malloc(sizeof(pthread_t));
+	if (!new->thread)
+		return (free(node), NULL);
+	memset((void *)new->thread, 0, 8);
 	if (pthread_mutex_init(&new->fork_mtx, NULL) != 0)
 		return (free(new), NULL);
 	if (new->i != node->n_of_philos)

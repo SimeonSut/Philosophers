@@ -6,127 +6,51 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 14:50:02 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/06 19:44:57 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static char	ft_addnb(long n, int len);
-static long	ft_strcount(long n);
-
-char	*ft_strdup(const char *s)
+void	state(t_philo *node, char *action, int time_to_state, int phindex)
 {
-	char	*duplicate;
-	size_t	i;
-	size_t	j;
+	struct timeval		tm;
+	int					microstart;
+	long long			check_tm;
+	long long			timestamp;
 
-	i = 0;
-	j = 0;
-	while (s[i])
-		i++;
-	duplicate = malloc((i + 1) * sizeof(char));
-	if (!duplicate)
-		return (NULL);
-	duplicate[i] = '\0';
-	while (s[j])
+	pthread_mutex_lock(&node->t_philo_mtx);
+	microstart = node->microstart;
+	pthread_mutex_unlock(&node->t_philo_mtx);
+	if (gettimeofday(&tm, NULL) == -1)
+		return ;//gettimeofday error
+	timestamp = ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart);
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld %d is %s\n", timestamp, phindex, action);
+	pthread_mutex_unlock(&node->terminal_mtx);
+	check_tm = (long long)time_to_state * 1000LL;
+	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - timestamp) < check_tm)
 	{
-		duplicate[j] = s[j];
-		j++;
+		if (gettimeofday(&tm, NULL) == -1)
+			return ;//gettimeofday error
 	}
-	return (duplicate);
+	return ;
 }
 
-char	*ft_freejoin(char *s1, char *s2)
+void	open_close_gates(t_philo *node, int phindex, int action)
 {
-	int		i;
-	int		j;
-	char	*s3;
-
-	i = 0;
-	j = 0;
-	while (s1[i])
-		i++;
-	while (s2[j])
-		j++;
-	if (i == 0 && j == 0)
-		return (free(s1), free(s2), NULL);
-	else if (i == 0 && j != 0)
-		return (free(s1), s2);
-	else if (j == 0 && i != 0)
-		return (free(s2), s1);
-	s3 = malloc((i + j + 1) * sizeof(char));
-	if (!s3)
-		return (free(s1), free(s2), NULL);
-	s3[i + j] = '\0';
-	while (j--)
-		s3[i + j] = s2[j];
-	while (i--)
-		s3[i] = s1[i];
-	return (free(s1), free(s2), s3);
-}
-
-char	*ft_itoa(int n)
-{
-	long	nb;
-	int		i;
-	int		len;
-	char	*result;
-
-	nb = n;
-	i = 0;
-	len = ft_strcount(nb);
-	result = malloc((len + 1) * sizeof(char));
-	if (!result)
-		return (NULL);
-    result[len] = '\0';
-	if (nb < 0)
+	if (action == CLOSE)
 	{
-		result[i] = '-';
-		i++;
+		if (phindex % 2 == 0)
+			pthread_mutex_lock(&node->gates_mtx[((phindex - 2) / 2)]);
+		else
+			pthread_mutex_lock(&node->gates_mtx[((phindex - 1) / 2)]);
 	}
-	while (i < len)
+	if (action == OPEN)
 	{
-		result[i] = ft_addnb(nb, len - i);
-		i++;
+		if (phindex % 2 == 0)
+			pthread_mutex_unlock(&node->gates_mtx[((phindex - 2) / 2)]);
+		else
+			pthread_mutex_unlock(&node->gates_mtx[((phindex - 1) / 2)]);
 	}
-	return (result);
-}
-
-static char	ft_addnb(long n, int len)
-{
-	if (n < 0)
-	{
-		n = -n;
-	}
-	while (len > 1)
-	{
-		n /= 10;
-		len--;
-	}
-	if (n > 9)
-	{
-		n %= 10;
-		return (n + 48);
-	}
-	return (n + 48);
-}
-
-static long	ft_strcount(long n)
-{
-	int	count;
-
-	count = 0;
-	if (n < 0)
-	{
-		n = -n;
-		count++;
-	}
-	while (n > 9)
-	{
-		n /= 10;
-		count++;
-	}
-	count++;
-	return (count);
 }

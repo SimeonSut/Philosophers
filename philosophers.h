@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 20:00:36 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/06 20:01:57 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ typedef struct timeval t_time;
 typedef struct	s_list
 {
 	int				i;
-	pthread_t		thread;
+	pthread_t		*thread;
 	pthread_mutex_t	fork_mtx;
 	struct	s_list	*next;
 }				t_list;
@@ -41,6 +41,7 @@ typedef struct  s_philo
 	t_list			*list;
 	pthread_mutex_t	*gates_mtx;
 	pthread_mutex_t	t_philo_mtx;
+	pthread_mutex_t	terminal_mtx;
 }				t_philo;
 
 //---MAIN.C---
@@ -82,10 +83,9 @@ char	*ft_strdup(const char *s);
 //---ROUTINE.C---
 void	thread_setup(t_philo *node);
 
-//---TIME_AND_STATES.C---
-void	fill_states_times(t_philo *node, int *states);
-void	state(t_philo *node, int time_to_state, int phindex);
-int		send_msg(int timestamp, int phindex, char *state);
+//---ROUTINE_UTILS.C---
+void	state(t_philo *node,char *action, int time_to_state, int phindex);
+void	open_close_gates(t_philo *node, int phindex, int action);
 
 //---CYCLES.C---
 /*void uneven_uneven_cycle(t_list *lst);
@@ -103,9 +103,12 @@ typedef enum e_exit
 	RIGHT = 1,
 	NOT_TAKEN = 0,
 	TAKEN = 1,
-	DIE = 0,
-	EAT = 1,
-	SLEEP = 0
+	EAT = 0,
+	SLEEP = 1,
+	THINK = 2,
+	DIE = 3,
+	OPEN = 0,
+	CLOSE = 1
 } t_exit;
 
 #endif

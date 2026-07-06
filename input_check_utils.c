@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/05 19:48:20 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/06 20:39:04 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,10 +76,8 @@ int	t_philo_additional_setup(t_philo *node, char **argv)
 	if (!node->gates_mtx)
 		return (ERROR);
 	while (--gates_nbr >= 0)
-	{
 		if (pthread_mutex_init(&node->gates_mtx[gates_nbr], NULL) == -1)
 			return (ERROR);//mutex init error, free to add here as well
-	}
 	node->microstart = (tm.tv_sec * 1000000LL + tm.tv_usec);
 	return (SUCCESS);
 }
