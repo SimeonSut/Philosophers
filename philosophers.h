@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/06 20:01:57 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/07 21:00:40 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ typedef struct timeval t_time;
 typedef struct	s_list
 {
 	int				i;
+	int				gate_count;
 	pthread_t		*thread;
 	pthread_mutex_t	fork_mtx;
 	struct	s_list	*next;
@@ -85,7 +86,7 @@ void	thread_setup(t_philo *node);
 
 //---ROUTINE_UTILS.C---
 void	state(t_philo *node,char *action, int time_to_state, int phindex);
-void	open_close_gates(t_philo *node, int phindex, int action);
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
 
 //---CYCLES.C---
 /*void uneven_uneven_cycle(t_list *lst);
@@ -107,8 +108,9 @@ typedef enum e_exit
 	SLEEP = 1,
 	THINK = 2,
 	DIE = 3,
-	OPEN = 0,
-	CLOSE = 1
+	UNLOCK = 0,
+	LOCK_ONE = 1,
+	LOCK_TWO = 2
 } t_exit;
 
 #endif

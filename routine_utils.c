@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/06 19:44:57 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/07 21:07:12 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,24 @@ void	state(t_philo *node, char *action, int time_to_state, int phindex)
 	return ;
 }
 
-void	open_close_gates(t_philo *node, int phindex, int action)
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
 {
-	if (action == CLOSE)
+	int			gate_count;
+
+	if (action == UNLOCK || action == LOCK_TWO)
+		pthread_mutex_lock(&node->t_philo_mtx);
+	lst->gate_count++;
+	gate_count = lst->gate_count;
+	if (action == UNLOCK || action == LOCK_TWO)
+		pthread_mutex_unlock(&node->t_philo_mtx);
+	if (action != UNLOCK && gate_count == 1)
 	{
 		if (phindex % 2 == 0)
 			pthread_mutex_lock(&node->gates_mtx[((phindex - 2) / 2)]);
 		else
 			pthread_mutex_lock(&node->gates_mtx[((phindex - 1) / 2)]);
 	}
-	if (action == OPEN)
+	else if (action == UNLOCK && gate_count == 2)
 	{
 		if (phindex % 2 == 0)
 			pthread_mutex_unlock(&node->gates_mtx[((phindex - 2) / 2)]);
