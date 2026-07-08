@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/07 21:07:12 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/08 21:09:16 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ void	state(t_philo *node, char *action, int time_to_state, int phindex)
 	pthread_mutex_unlock(&node->t_philo_mtx);
 	if (gettimeofday(&tm, NULL) == -1)
 		return ;//gettimeofday error
-	timestamp = ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart);
+	timestamp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) / 1000LL);
 	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld %d is %s\n", timestamp, phindex, action);
+	printf("%lld %d iss %s\n", timestamp, phindex, action);
 	pthread_mutex_unlock(&node->terminal_mtx);
 	check_tm = (long long)time_to_state * 1000LL;
-	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - timestamp) < check_tm)
+	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) < check_tm)
 	{
 		if (gettimeofday(&tm, NULL) == -1)
 			return ;//gettimeofday error
