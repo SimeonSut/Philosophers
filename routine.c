@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/07 21:00:12 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/09 17:42:52 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ static void	*start(void	*arg)
 	int		phindex;
 	int		states[3];
 
-	phindex = 0;
 	pthread_mutex_lock(&((t_philo *)arg)->t_philo_mtx);
 	node = ((t_philo *)arg);
 	lst = node->list;
@@ -56,17 +55,12 @@ static void	*start(void	*arg)
 	states[EAT] = node->tt_eat;
 	states[SLEEP] = node->tt_sleep;
 	states[THINK] = -1;
-	if (phindex % 2 == 0)
-		open_close_gates(node, lst, phindex, LOCK_ONE);
-	node->list = node->list->next;
 	pthread_mutex_unlock(&node->t_philo_mtx);
+	open_close_gates(node, lst, phindex, LOCK);
 	if (phindex % 2 == 0)
 		even_philos(node, lst, phindex, states);
 	else
-	{
-		open_close_gates(node, lst, phindex, LOCK_TWO);
 		odd_philos(node, lst, phindex, states);
-	}
 	return (arg);
 }
 
@@ -83,7 +77,9 @@ static void even_philos(t_philo *node, t_list *lst, int phindex, int *states)
 	{
 		take_a_fork(node, lst, phindex);
 		take_a_fork(node, lst->next, phindex);
+		pthread_mutex_lock(&node->t_philo_mtx);
 		open_close_gates(node, lst, phindex, UNLOCK);
+		pthread_mutex_unlock(&node->t_philo_mtx);
 		state(node, "eating", states[EAT], phindex);
 		pthread_mutex_unlock(&lst->fork_mtx);
 		pthread_mutex_unlock(&lst->next->fork_mtx);
@@ -110,7 +106,9 @@ static void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states)
 	{
 		take_a_fork(node, lst, phindex);
 		take_a_fork(node, lst->next, phindex);
+		pthread_mutex_lock(&node->t_philo_mtx);
 		open_close_gates(node, lst, phindex, UNLOCK);
+		pthread_mutex_unlock(&node->t_philo_mtx);
 		state(node, "eating", states[EAT], phindex);
 		pthread_mutex_unlock(&lst->fork_mtx);
 		pthread_mutex_unlock(&lst->next->fork_mtx);

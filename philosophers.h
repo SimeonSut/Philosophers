@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/07 21:00:40 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/09 15:08:54 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,7 @@ typedef enum e_exit
 	THINK = 2,
 	DIE = 3,
 	UNLOCK = 0,
-	LOCK_ONE = 1,
-	LOCK_TWO = 2
+	LOCK = 1
 } t_exit;
 
 #endif
