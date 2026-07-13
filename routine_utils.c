@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/09 18:35:20 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/13 14:12:27 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,22 @@
 void	state(t_philo *node, char *action, int time_to_state, int phindex)
 {
 	struct timeval		tm;
-	int					microstart;
-	long long			check_tm;
+	long long			mstart;
+	long long			check;
 	long long			timestamp;
 
-	pthread_mutex_lock(&node->t_philo_mtx);
-	microstart = node->microstart;
-	pthread_mutex_unlock(&node->t_philo_mtx);
+	mstart = node->microstart;
 	if (gettimeofday(&tm, NULL) == -1)
 		return ;//gettimeofday error
-	timestamp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) / 1000LL);
 	pthread_mutex_lock(&node->terminal_mtx);
+	timestamp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - mstart) / 1000LL);
 	printf("%lld %d is %s\n", timestamp, phindex, action);
 	pthread_mutex_unlock(&node->terminal_mtx);
-	check_tm = (long long)time_to_state * 1000LL;
-	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - timestamp) < check_tm)
+	timestamp = (tm.tv_sec * 1000000LL + tm.tv_usec);
+	check = time_to_state * 1000LL;
+	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - timestamp) < check)
 	{
+		usleep(500);
 		if (gettimeofday(&tm, NULL) == -1)
 			return ;//gettimeofday error
 	}

@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/09 17:42:52 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/13 19:31:51 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,24 @@ void		thread_setup(t_philo *node)
 	int		i;
 	t_list	*lst;
 
-	lst = node->list;
-	i = lst->i;
+	i = node->list->i;
+	pthread_mutex_lock(&node->t_philo_mtx);
 	while (1)
 	{
-		pthread_create(lst->thread, NULL, &start, (void *)node);
-		lst = lst->next;
-		if (lst->i == i)
+		pthread_create(node->list->thread, NULL, &start, (void *)node);
+		node->list = node->list->next;
+		if (node->list->i == i)	
 			break;
 	}
-	i = lst->i;
+	pthread_mutex_unlock(&node->t_philo_mtx);
+	i = node->list->i;
+	lst = node->list;
 	while (1)
 	{
 		pthread_join(*lst->thread, NULL);
 		lst = lst->next;
 		if (lst->i == i)
-			break;;
+			break;
 	}
 }
 
@@ -55,7 +57,7 @@ static void	*start(void	*arg)
 	states[EAT] = node->tt_eat;
 	states[SLEEP] = node->tt_sleep;
 	states[THINK] = -1;
-	pthread_mutex_unlock(&node->t_philo_mtx);
+	node->list = node->list->next;
 	open_close_gates(node, lst, phindex, LOCK);
 	if (phindex % 2 == 0)
 		even_philos(node, lst, phindex, states);
@@ -70,14 +72,11 @@ static void even_philos(t_philo *node, t_list *lst, int phindex, int *states)
 	long long		microstart;
 	long long		timestamp;
 
-	pthread_mutex_lock(&node->t_philo_mtx);
 	microstart = node->microstart;
-	pthread_mutex_unlock(&node->t_philo_mtx);
 	while (1)
 	{
 		take_a_fork(node, lst, phindex);
 		take_a_fork(node, lst->next, phindex);
-		pthread_mutex_lock(&node->t_philo_mtx);
 		open_close_gates(node, lst, phindex, UNLOCK);
 		pthread_mutex_unlock(&node->t_philo_mtx);
 		state(node, "eating", states[EAT], phindex);
@@ -86,7 +85,7 @@ static void even_philos(t_philo *node, t_list *lst, int phindex, int *states)
 		state(node, "sleeping", states[SLEEP], phindex);
 		if (gettimeofday(&tm, NULL) == -1)
 			break ;//gettimeofday error
-		timestamp = (tm.tv_sec * 1000000LL + tm.tv_usec) - microstart;
+		timestamp = ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart)/ 1000LL;
 		pthread_mutex_lock(&node->terminal_mtx);
 		printf("%lld %d is thinking\n", timestamp, phindex);
 		pthread_mutex_unlock(&node->terminal_mtx);
@@ -99,14 +98,11 @@ static void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states)
 	long long		microstart;
 	int				timestamp;
 
-	pthread_mutex_lock(&node->t_philo_mtx);
 	microstart = node->microstart;
-	pthread_mutex_unlock(&node->t_philo_mtx);
 	while (1)
 	{
 		take_a_fork(node, lst, phindex);
 		take_a_fork(node, lst->next, phindex);
-		pthread_mutex_lock(&node->t_philo_mtx);
 		open_close_gates(node, lst, phindex, UNLOCK);
 		pthread_mutex_unlock(&node->t_philo_mtx);
 		state(node, "eating", states[EAT], phindex);
@@ -115,7 +111,7 @@ static void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states)
 		state(node, "sleeping", states[SLEEP], phindex);
 		if (gettimeofday(&tm, NULL) == -1)
 			break ;//gettimeofday error
-		timestamp = (tm.tv_sec * 1000000LL + tm.tv_usec) - microstart;
+		timestamp = ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) / 1000LL;
 		pthread_mutex_lock(&node->terminal_mtx);
 		printf("%d %d is thinking\n", timestamp, phindex);
 		pthread_mutex_unlock(&node->terminal_mtx);
@@ -125,17 +121,15 @@ static void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states)
 static void	take_a_fork(t_philo *node, t_list *lst, int phindex)
 {
 	struct timeval	tm;
-	long long		timestmp;
+	long long		timestamp;
 	long long		microstart;
 
-	pthread_mutex_lock(&lst->fork_mtx);
-	pthread_mutex_lock(&node->t_philo_mtx);
 	microstart = node->microstart;
-	pthread_mutex_unlock(&node->t_philo_mtx);
+	pthread_mutex_lock(&lst->fork_mtx);
 	if (gettimeofday(&tm, NULL) == -1)
 		return ;//gettimeofday error
-	timestmp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) / 1000LL);
+	timestamp = ((tm.tv_sec * 1000000LL + tm.tv_usec) - microstart) / 1000LL;
 	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld %d has taken a fork\n", timestmp, phindex);
+	printf("%lld %d has taken a fork\n", timestamp, phindex);
 	pthread_mutex_unlock(&node->terminal_mtx);
 }
