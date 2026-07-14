@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 13:21:23 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/14 17:56:12 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ typedef struct  s_philo
 	int				tt_eat;
 	int				tt_sleep;
 	int				t_must_eat;
+	int				death_check;
 	long long		ustart;
 	t_list			*list;
 	pthread_mutex_t	*gates_mtx;
@@ -71,24 +72,22 @@ t_philo	*check_n_initialize(char **argv);
 
 //---INPUT_CHECK_UTILS.C---
 size_t	ft_strlen(const char *s);
-int		ft_atoi(const char *nptr);
 int		ft_strcmp(char *s1, char *s2);
-int		set_time(t_philo *node);
+int		ft_atoi(const char *nptr);
 int		t_philo_additional_setup(t_philo *node, char **argv);
 
 //---THREADS.C---
 void	thread_setup(t_philo *node);
 
-//---ROUTINE_UTILS.C---
-void	state(t_philo *node,char *action, int time_to_state, int phindex);
-void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
-void	take_a_fork(t_philo *node, t_list *lst, int phindex);
-
 //---ROUTINES.C---
-/*void uneven_uneven_cycle(t_list *lst);
-void uneven_even_cycle(t_list *lst);
-void even_uneven_cycle(t_list *lst);
-void even_even_cycle(t_list *lst);*/
+void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states);
+void	even_philos(t_philo *node, t_list *lst, int phindex, int *states);
+
+//---ROUTINE_UTILS.C---
+int		state(t_philo *node,char *action, int time_to_state, int phindex);
+void	take_a_fork(t_philo *node, t_list *lst, int phindex);
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
+
 
 typedef enum e_exit
 {
@@ -105,7 +104,12 @@ typedef enum e_exit
 	THINK = 2,
 	DIE = 3,
 	UNLOCK = 0,
-	LOCK = 1
+	LOCK = 1,
+	YES = 0,
+	NO = 1,
+	ALIVE = 0,
+	DEAD = 1,
+	GETTIMEOFDAY_BUG = -1
 } t_exit;
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input_check_utils.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 13:06:53 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/14 17:56:20 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,16 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+int	ft_strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+	return ((*s1 - *s2));
 }
 
 int	ft_atoi(const char *nptr)
@@ -46,16 +56,6 @@ int	ft_atoi(const char *nptr)
 	return ((result * sign));
 }
 
-int	ft_strcmp(char *s1, char *s2)
-{
-	while (*s1 && *s2 && *s1 == *s2)
-	{
-		s1++;
-		s2++;
-	}
-	return ((*s1 - *s2));
-}
-
 int	t_philo_additional_setup(t_philo *node, char **argv)
 {
 	int	gates_nbr;
@@ -78,6 +78,7 @@ int	t_philo_additional_setup(t_philo *node, char **argv)
 	while (--gates_nbr >= 0)
 		if (pthread_mutex_init(&node->gates_mtx[gates_nbr], NULL) == -1)
 			return (ERROR);//mutex init error, free to add here as well
+	node->death_check= ALIVE;
 	node->ustart = (tm.tv_sec * 1000000LL + tm.tv_usec);
 	return (SUCCESS);
 }

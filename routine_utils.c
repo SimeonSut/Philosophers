@@ -3,57 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 13:20:23 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/14 17:56:31 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-void	state(t_philo *node, char *action, int time_to_state, int phindex)
+int	state(t_philo *node, char *action, int time_to_state, int phindex)
 {
 	struct timeval		t;
-	long long			ustart;
-	long long			check;
 	long long			tm;
 
-	ustart = node->ustart;
 	if (gettimeofday(&t, NULL) == -1)
-		return ;//gettimeofday error
+		return (GETTIMEOFDAY_BUG);
 	pthread_mutex_lock(&node->terminal_mtx);
-	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - ustart) / 1000LL);
+	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL);
 	printf("%lld %d is %s\n", tm, phindex, action);
 	pthread_mutex_unlock(&node->terminal_mtx);
 	tm = (t.tv_sec * 1000000LL + t.tv_usec);
-	check = time_to_state * 1000LL;
-	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < check)
+	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < time_to_state * 1000LL)
 	{
 		usleep(500);
 		if (gettimeofday(&t, NULL) == -1)
-			return ;//gettimeofday error
+			return (GETTIMEOFDAY_BUG);
+		if (((t.tv_sec * 1000000LL + t.tv_usec) - tm) >= (node->tt_die * 1000L))
+		{
+			pthread_mutex_lock(&node->t_philo_mtx);
+			node->death_check = DEAD;
+			pthread_mutex_unlock(&node->t_philo_mtx);
+			return (DEAD);
+		}
 	}
-	return ;
-}
-
-void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
-{
-	if (action == LOCK)
-	{
-		if (phindex % 2 == 0)
-			pthread_mutex_lock(&node->gates_mtx[((phindex - 2) / 2)]);
-		else
-			pthread_mutex_lock(&node->gates_mtx[((phindex - 1) / 2)]);
-	}
-	else if (action == UNLOCK && lst->gate_count == 0)
-	{
-		lst->gate_count++;
-		if (phindex % 2 == 0)
-			pthread_mutex_unlock(&node->gates_mtx[((phindex - 2) / 2)]);
-		else
-			pthread_mutex_unlock(&node->gates_mtx[((phindex - 1) / 2)]);
-	}
+	return (ALIVE);
 }
 
 void	take_a_fork(t_philo *node, t_list *lst, int phindex)
@@ -68,4 +52,30 @@ void	take_a_fork(t_philo *node, t_list *lst, int phindex)
 	pthread_mutex_lock(&node->terminal_mtx);
 	printf("%lld %d has taken a fork\n", tm, phindex);
 	pthread_mutex_unlock(&node->terminal_mtx);
+}
+
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
+{
+	int	target_index;
+
+	target_index = 0;
+	if (action == LOCK)
+	{
+		if (phindex % 2 == 0)
+			target_index = ((phindex - 2) / 2);
+		else
+			target_index = ((phindex - 1) / 2);
+		//printf("%d locks gate %d\n", phindex, target_index);
+		pthread_mutex_lock(&node->gates_mtx[target_index]);
+	}
+	else if (action == UNLOCK && lst->gate_count == 0)
+	{
+		lst->gate_count++;
+		if (phindex % 2 == 0)
+			target_index = ((phindex - 2) / 2);
+		else
+			target_index = ((phindex - 1) / 2);
+		//printf("%d unlocks gate %d\n", phindex, target_index);
+		pthread_mutex_unlock(&node->gates_mtx[target_index]);
+	}
 }
