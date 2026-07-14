@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input_check.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/07 19:54:39 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/14 07:39:24 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,10 @@ static t_list	*t_list_init(t_philo *node, t_list *first, int i);
 t_philo	*check_n_initialize(char **argv)
 {
 	int		i;
-	int 	arg_len;
 	t_philo	*node;
 	t_list	*first;
 
 	i = 0;
-	arg_len = 0;
 	while (argv[++i])
 		if (int_filter(argv[i], (int)ft_strlen(argv[i])) == ERROR)
 			return (NULL);

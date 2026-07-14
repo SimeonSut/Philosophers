@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/13 14:12:34 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/14 13:21:23 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ typedef struct  s_philo
 	int				tt_eat;
 	int				tt_sleep;
 	int				t_must_eat;
-	long long		microstart;
+	long long		ustart;
 	t_list			*list;
 	pthread_mutex_t	*gates_mtx;
 	pthread_mutex_t	t_philo_mtx;
@@ -76,19 +76,15 @@ int		ft_strcmp(char *s1, char *s2);
 int		set_time(t_philo *node);
 int		t_philo_additional_setup(t_philo *node, char **argv);
 
-//---ROUTINE_UTILS.C---
-char	*ft_freejoin(char *s1, char *s2);
-char	*ft_itoa(int n);
-char	*ft_strdup(const char *s);
-
-//---ROUTINE.C---
+//---THREADS.C---
 void	thread_setup(t_philo *node);
 
 //---ROUTINE_UTILS.C---
 void	state(t_philo *node,char *action, int time_to_state, int phindex);
 void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
+void	take_a_fork(t_philo *node, t_list *lst, int phindex);
 
-//---CYCLES.C---
+//---ROUTINES.C---
 /*void uneven_uneven_cycle(t_list *lst);
 void uneven_even_cycle(t_list *lst);
 void even_uneven_cycle(t_list *lst);

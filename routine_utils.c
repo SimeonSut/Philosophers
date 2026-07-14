@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/13 14:12:27 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/14 13:20:23 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,24 @@
 
 void	state(t_philo *node, char *action, int time_to_state, int phindex)
 {
-	struct timeval		tm;
-	long long			mstart;
+	struct timeval		t;
+	long long			ustart;
 	long long			check;
-	long long			timestamp;
+	long long			tm;
 
-	mstart = node->microstart;
-	if (gettimeofday(&tm, NULL) == -1)
+	ustart = node->ustart;
+	if (gettimeofday(&t, NULL) == -1)
 		return ;//gettimeofday error
 	pthread_mutex_lock(&node->terminal_mtx);
-	timestamp = (((tm.tv_sec * 1000000LL + tm.tv_usec) - mstart) / 1000LL);
-	printf("%lld %d is %s\n", timestamp, phindex, action);
+	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - ustart) / 1000LL);
+	printf("%lld %d is %s\n", tm, phindex, action);
 	pthread_mutex_unlock(&node->terminal_mtx);
-	timestamp = (tm.tv_sec * 1000000LL + tm.tv_usec);
+	tm = (t.tv_sec * 1000000LL + t.tv_usec);
 	check = time_to_state * 1000LL;
-	while (((tm.tv_sec * 1000000LL + tm.tv_usec) - timestamp) < check)
+	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < check)
 	{
 		usleep(500);
-		if (gettimeofday(&tm, NULL) == -1)
+		if (gettimeofday(&t, NULL) == -1)
 			return ;//gettimeofday error
 	}
 	return ;
@@ -54,4 +54,18 @@ void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
 		else
 			pthread_mutex_unlock(&node->gates_mtx[((phindex - 1) / 2)]);
 	}
+}
+
+void	take_a_fork(t_philo *node, t_list *lst, int phindex)
+{
+	struct timeval	t;
+	long long		tm;
+
+	pthread_mutex_lock(&lst->fork_mtx);
+	if (gettimeofday(&t, NULL) == -1)
+		return ;//gettimeofday error
+	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld %d has taken a fork\n", tm, phindex);
+	pthread_mutex_unlock(&node->terminal_mtx);
 }
