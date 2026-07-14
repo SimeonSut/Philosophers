@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 17:56:20 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/14 23:03:23 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,7 @@ int	t_philo_additional_setup(t_philo *node, char **argv)
 	struct timeval	tm;
 
 	gates_nbr = node->n_of_philos / 2;
-	if (gettimeofday(&tm, NULL) == -1)
-		return (ERROR);
+	gettimeofday(&tm, NULL);
 	if (node->n_of_philos % 2 != 0)
 		gates_nbr++;
 	if (argv[5])

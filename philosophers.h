@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 17:56:12 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/14 23:56:49 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,9 @@ void	even_philos(t_philo *node, t_list *lst, int phindex, int *states);
 
 //---ROUTINE_UTILS.C---
 int		state(t_philo *node,char *action, int time_to_state, int phindex);
-void	take_a_fork(t_philo *node, t_list *lst, int phindex);
+int		take_a_fork(t_philo *node, t_list *lst, int phindex);
 void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
+void	death_check(t_philo *node, struct timeval t);
 
 
 typedef enum e_exit
