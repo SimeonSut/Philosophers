@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 23:56:23 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/15 07:47:31 by simeon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,11 +92,16 @@ void	death_check(t_philo *node, struct timeval t)
 {
 	long long		check_tm;
 	long long		tm;
+	long long		printed;
+	long long		start_print;
 
 	check_tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart);
 	gettimeofday(&t, NULL);
 	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart);
 	pthread_mutex_lock(&node->t_philo_mtx);
+	printed = tm - check_tm;
+	start_print = node->tt_die *1000LL;
+	printf("current time is %lld and start time is %lld\n", printed, start_print);
 	if ((tm - check_tm) >= node->tt_die * 1000LL)
 		node->death_check = DEAD;
 	pthread_mutex_unlock(&node->t_philo_mtx);
