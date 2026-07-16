@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: simeon <simeon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/15 07:47:31 by simeon           ###   ########.fr       */
+/*   Updated: 2026/07/16 19:55:47 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ int	take_a_fork(t_philo *node, t_list *lst, int phindex)
 	if (node->death_check == DEAD)
 	{
 		pthread_mutex_unlock(&node->t_philo_mtx);
+		pthread_mutex_unlock(&lst->fork_mtx);
 		return (DEAD);
 	}
 	pthread_mutex_unlock(&node->t_philo_mtx);
@@ -60,7 +61,7 @@ int	take_a_fork(t_philo *node, t_list *lst, int phindex)
 	gettimeofday(&t, NULL);
 	death_check(node, t);
 	if (node->death_check == DEAD)
-		return (DEAD);
+		return (pthread_mutex_unlock(&lst->fork_mtx), DEAD);
 	return (ALIVE);
 }
 
@@ -88,7 +89,7 @@ void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
 	}
 }
 
-void	death_check(t_philo *node, struct timeval t)
+int		death_check(t_philo *node, struct timeval t)
 {
 	long long		check_tm;
 	long long		tm;
@@ -101,10 +102,14 @@ void	death_check(t_philo *node, struct timeval t)
 	pthread_mutex_lock(&node->t_philo_mtx);
 	printed = tm - check_tm;
 	start_print = node->tt_die *1000LL;
-	printf("current time is %lld and start time is %lld\n", printed, start_print);
+	//printf("current time is %lld and start time is %lld\n", printed, start_print);
 	if ((tm - check_tm) >= node->tt_die * 1000LL)
+	{
 		node->death_check = DEAD;
+		pthread_mutex_unlock(&node->t_philo_mtx);
+		return (DEAD);
+	}
 	pthread_mutex_unlock(&node->t_philo_mtx);
-	return ;
+	return (ALIVE);
 }
 	

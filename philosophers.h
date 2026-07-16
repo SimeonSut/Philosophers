@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 23:56:49 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/16 18:42:44 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,14 +80,13 @@ int		t_philo_additional_setup(t_philo *node, char **argv);
 void	thread_setup(t_philo *node);
 
 //---ROUTINES.C---
-void	odd_philos(t_philo *node, t_list *lst, int phindex, int *states);
-void	even_philos(t_philo *node, t_list *lst, int phindex, int *states);
+void	routine(t_philo *node, t_list *lst, int phindex, int *states);
 
 //---ROUTINE_UTILS.C---
 int		state(t_philo *node,char *action, int time_to_state, int phindex);
 int		take_a_fork(t_philo *node, t_list *lst, int phindex);
 void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
-void	death_check(t_philo *node, struct timeval t);
+int		death_check(t_philo *node, struct timeval t);
 
 
 typedef enum e_exit
@@ -102,7 +101,6 @@ typedef enum e_exit
 	TAKEN = 1,
 	EAT = 0,
 	SLEEP = 1,
-	THINK = 2,
 	DIE = 3,
 	UNLOCK = 0,
 	LOCK = 1,

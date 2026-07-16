@@ -6,13 +6,15 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 17:12:39 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/16 19:26:14 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
 static void	*start(void	*arg);
+static void	get_data(t_philo *node, int *phindex, int *states);
+static void	closing_loop(t_list *lst);
 
 void		thread_setup(t_philo *node)
 {
@@ -25,19 +27,12 @@ void		thread_setup(t_philo *node)
 	{
 		pthread_create(node->list->thread, NULL, &start, (void *)node);
 		node->list = node->list->next;
-		if (node->list->i == i)	
+		if (node->list->i == i)
 			break;
 	}
-	pthread_mutex_unlock(&node->t_philo_mtx);
-	i = node->list->i;
 	lst = node->list;
-	while (1)
-	{
-		pthread_join(*lst->thread, NULL);
-		lst = lst->next;
-		if (lst->i == i)
-			break;
-	}
+	pthread_mutex_unlock(&node->t_philo_mtx);
+	closing_loop(lst);
 }
 
 static void	*start(void	*arg)
@@ -45,19 +40,54 @@ static void	*start(void	*arg)
 	t_philo	*node;
 	t_list	*lst;
 	int		phindex;
-	int		states[3];
+	int		states[2];
 
 	pthread_mutex_lock(&((t_philo *)arg)->t_philo_mtx);
 	node = ((t_philo *)arg);
 	lst = node->list;
-	phindex = node->list->i;
+	get_data(node, &phindex, states);
+	if (phindex % 2 == 0)
+	{
+		pthread_mutex_unlock(&node->t_philo_mtx);
+		open_close_gates(node, lst, phindex, LOCK);
+	}
+	else
+	{
+		open_close_gates(node, lst, phindex, LOCK);
+		pthread_mutex_unlock(&node->t_philo_mtx);
+	}
+	routine(node, lst, phindex, states);
+	pthread_mutex_lock(&node->t_philo_mtx);
+	if (node->death_check == DEAD)
+		return (pthread_mutex_unlock(&node->t_philo_mtx), NULL);
+	return (arg);
+}
+
+static void	closing_loop(t_list *lst)
+{
+	t_philo	*return_node;
+	int		i;
+
+	return_node = NULL;
+	i = lst->i;
+	pthread_join(*lst->thread, (void *)return_node);
+	lst = lst->next;
+	while (i != lst->i && return_node)
+	{
+		pthread_join(*lst->thread, (void *)return_node);
+		lst = lst->next;
+	}
+	while (i != lst->i)
+	{
+		pthread_detach(*lst->thread);
+		lst = lst->next;
+	}
+}
+
+static void	get_data(t_philo *node, int *phindex, int *states)
+{
+	*phindex = node->list->i;
 	states[EAT] = node->tt_eat;
 	states[SLEEP] = node->tt_sleep;
-	states[THINK] = -1;
 	node->list = node->list->next;
-	if (phindex % 2 == 0)
-		even_philos(node, lst, phindex, states);
-	else
-		odd_philos(node, lst, phindex, states);
-	return (arg);
 }
