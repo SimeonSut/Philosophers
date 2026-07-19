@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/16 19:55:47 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/20 00:14:52 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,9 @@ int	state(t_philo *node, char *action, int time_to_state, int phindex)
 	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < time_to_state * 1000LL)
 	{
 		usleep(500);
-		gettimeofday(&t, NULL);
-		if (((t.tv_sec * 1000000LL + t.tv_usec) - tm) >= (node->tt_die * 1000L))
-		{
-			pthread_mutex_lock(&node->t_philo_mtx);
-			node->death_check = DEAD;
-			pthread_mutex_unlock(&node->t_philo_mtx);
+		if (death_check(node, t, phindex) == DEAD)
 			return (DEAD);
-		}
+		gettimeofday(&t, NULL);
 	}
 	return (ALIVE);
 }
@@ -45,7 +40,7 @@ int	take_a_fork(t_philo *node, t_list *lst, int phindex)
 
 	pthread_mutex_lock(&lst->fork_mtx);
 	gettimeofday(&t, NULL);
-	death_check(node, t);
+	death_check(node, t, phindex);
 	pthread_mutex_lock(&node->t_philo_mtx);
 	if (node->death_check == DEAD)
 	{
@@ -59,7 +54,7 @@ int	take_a_fork(t_philo *node, t_list *lst, int phindex)
 	printf("%lld %d has taken a fork\n", tm, phindex);
 	pthread_mutex_unlock(&node->terminal_mtx);
 	gettimeofday(&t, NULL);
-	death_check(node, t);
+	death_check(node, t, phindex);
 	if (node->death_check == DEAD)
 		return (pthread_mutex_unlock(&lst->fork_mtx), DEAD);
 	return (ALIVE);
@@ -89,27 +84,36 @@ void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
 	}
 }
 
-int		death_check(t_philo *node, struct timeval t)
+int		death_check(t_philo *node, struct timeval t, int phindex)
 {
 	long long		check_tm;
 	long long		tm;
-	long long		printed;
-	long long		start_print;
 
+	pthread_mutex_lock(&node->t_philo_mtx);
+	if (node->death_check == DEAD)
+	{
+		pthread_mutex_unlock(&node->t_philo_mtx);
+		return (DEAD);
+	}
+	pthread_mutex_unlock(&node->t_philo_mtx);
 	check_tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart);
 	gettimeofday(&t, NULL);
 	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart);
 	pthread_mutex_lock(&node->t_philo_mtx);
-	printed = tm - check_tm;
-	start_print = node->tt_die *1000LL;
-	//printf("current time is %lld and start time is %lld\n", printed, start_print);
 	if ((tm - check_tm) >= node->tt_die * 1000LL)
 	{
 		node->death_check = DEAD;
 		pthread_mutex_unlock(&node->t_philo_mtx);
+		announce_death(node, phindex);
 		return (DEAD);
 	}
 	pthread_mutex_unlock(&node->t_philo_mtx);
 	return (ALIVE);
 }
-	
+
+void	announce_death(t_philo *node, int phindex)
+{
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("Oh nooo, philosopher %d has died!\n", phindex);
+	pthread_mutex_unlock(&node->terminal_mtx);
+}

@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/16 18:42:44 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/19 19:47:46 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,8 @@ void	routine(t_philo *node, t_list *lst, int phindex, int *states);
 int		state(t_philo *node,char *action, int time_to_state, int phindex);
 int		take_a_fork(t_philo *node, t_list *lst, int phindex);
 void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
-int		death_check(t_philo *node, struct timeval t);
+int		death_check(t_philo *node, struct timeval t, int phindex);
+void	announce_death(t_philo *node, int phindex);
 
 
 typedef enum e_exit

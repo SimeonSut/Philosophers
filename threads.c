@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/16 19:26:14 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/19 17:54:44 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,11 @@ void		thread_setup(t_philo *node)
 
 	i = node->list->i;
 	pthread_mutex_lock(&node->t_philo_mtx);
-	while (1)
+	while (node->list)
 	{
 		pthread_create(node->list->thread, NULL, &start, (void *)node);
-		node->list = node->list->next;
+		if (node->list->next)
+			node->list = node->list->next;
 		if (node->list->i == i)
 			break;
 	}
@@ -46,16 +47,8 @@ static void	*start(void	*arg)
 	node = ((t_philo *)arg);
 	lst = node->list;
 	get_data(node, &phindex, states);
-	if (phindex % 2 == 0)
-	{
-		pthread_mutex_unlock(&node->t_philo_mtx);
-		open_close_gates(node, lst, phindex, LOCK);
-	}
-	else
-	{
-		open_close_gates(node, lst, phindex, LOCK);
-		pthread_mutex_unlock(&node->t_philo_mtx);
-	}
+	pthread_mutex_unlock(&node->t_philo_mtx);
+	open_close_gates(node, lst, phindex, LOCK);
 	routine(node, lst, phindex, states);
 	pthread_mutex_lock(&node->t_philo_mtx);
 	if (node->death_check == DEAD)
@@ -72,12 +65,12 @@ static void	closing_loop(t_list *lst)
 	i = lst->i;
 	pthread_join(*lst->thread, (void *)return_node);
 	lst = lst->next;
-	while (i != lst->i && return_node)
+	while (lst && i != lst->i && return_node)
 	{
 		pthread_join(*lst->thread, (void *)return_node);
 		lst = lst->next;
 	}
-	while (i != lst->i)
+	while (lst && i != lst->i)
 	{
 		pthread_detach(*lst->thread);
 		lst = lst->next;
