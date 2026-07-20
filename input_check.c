@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 17:52:33 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/20 22:01:03 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,6 +206,8 @@ static t_list	*t_list_init(t_philo *node, t_list *first, int i)
 		return (NULL);
 	new->i = i;
 	new->gate_count = 0;
+	new->fork_state = UNLOCKED;
+	new->forks_held = 0;
 	new->thread = malloc(sizeof(pthread_t));
 	if (!new->thread)
 		return (free(node), NULL);

@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/19 19:47:46 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/20 22:16:17 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-typedef struct timeval t_time;
-
 typedef struct	s_list
 {
 	int				i;
 	int				gate_count;
+	int				fork_state;
+	int				forks_held;
 	pthread_t		*thread;
 	pthread_mutex_t	fork_mtx;
 	struct	s_list	*next;
@@ -83,33 +83,29 @@ void	thread_setup(t_philo *node);
 void	routine(t_philo *node, t_list *lst, int phindex, int *states);
 
 //---ROUTINE_UTILS.C---
-int		state(t_philo *node,char *action, int time_to_state, int phindex);
-int		take_a_fork(t_philo *node, t_list *lst, int phindex);
 void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
 int		death_check(t_philo *node, struct timeval t, int phindex);
 void	announce_death(t_philo *node, int phindex);
+void	announce_fork_taken(t_philo *node, int phindex);
+void	announce_thinking(t_philo *node, int phindex);
 
 
 typedef enum e_exit
 {
 	SUCCESS = 0,
 	ERROR = 1,
+	UNLOCK = 0,
 	UNLOCKED = 0,
+	LOCK = 1,
 	LOCKED = 1,
 	LEFT = 0,
 	RIGHT = 1,
-	NOT_TAKEN = 0,
-	TAKEN = 1,
 	EAT = 0,
 	SLEEP = 1,
-	DIE = 3,
-	UNLOCK = 0,
-	LOCK = 1,
 	YES = 0,
 	NO = 1,
 	ALIVE = 0,
 	DEAD = 1,
-	GETTIMEOFDAY_BUG = -1
 } t_exit;
 
 #endif
