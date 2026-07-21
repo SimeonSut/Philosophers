@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:34:46 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/20 22:47:36 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/21 18:00:01 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int	take_a_fork(t_philo *node, t_list *lst, int phindex, int side);
 static int	state(t_philo *node, char *action, int time_to_state, int phindex);
 static int	try_fork(t_list *lst, int side);
-static void	wait_death_time(t_philo *node);
+static int	drop_fork(t_list *lst);
 
 void routine(t_philo *node, t_list *lst, int phindex, int *states)
 {
@@ -31,12 +31,7 @@ void routine(t_philo *node, t_list *lst, int phindex, int *states)
 		open_close_gates(node, lst, phindex, UNLOCK);
 		if (state(node, "eating", states[EAT], phindex) == DEAD)
 			break ;
-		pthread_mutex_lock(&lst->fork_mtx);
-		lst->fork_state = UNLOCKED;
-		pthread_mutex_unlock(&lst->fork_mtx);
-		pthread_mutex_lock(&lst->next->fork_mtx);
-		lst->next->fork_state = UNLOCKED;
-		pthread_mutex_unlock(&lst->next->fork_mtx);
+		drop_fork(lst);
 		if (state(node, "sleeping", states[SLEEP], phindex) == DEAD)
 			break ;
 		announce_thinking(node, phindex);
@@ -44,6 +39,32 @@ void routine(t_philo *node, t_list *lst, int phindex, int *states)
 	}
 	if (!lst->next)
 		wait_death_time(node);
+}
+
+static int	state(t_philo *node, char *action, int time_to_state, int phindex)
+{
+	struct timeval		t;
+	struct timeval		death_count_t;
+	long long			tm;
+
+	gettimeofday(&t, NULL);
+	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL);
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld %d is %s\n", tm, phindex, action);
+	pthread_mutex_unlock(&node->terminal_mtx);
+	tm = (t.tv_sec * 1000000LL + t.tv_usec);
+	death_count_t = t;
+	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < time_to_state * 1000LL)
+	{
+		usleep(500);
+		if (death_check(node, death_count_t, phindex) == DEAD)
+		{
+			printf("bla\n");
+			return (DEAD);
+		}
+		gettimeofday(&t, NULL);
+	}
+	return (ALIVE);
 }
 
 static int	take_a_fork(t_philo *node, t_list *lst, int phindex, int side)
@@ -59,51 +80,11 @@ static int	take_a_fork(t_philo *node, t_list *lst, int phindex, int side)
 			announce_fork_taken(node, phindex);
 			break ;
 		}
-		usleep(100);
+		usleep(10);
 	}
 	if (death_check(node, t, phindex) == DEAD)
 		return (DEAD);
 	return (ALIVE);
-}
-
-static int	state(t_philo *node, char *action, int time_to_state, int phindex)
-{
-	int					is_eating;
-	struct timeval		t;
-	long long			tm;
-
-	is_eating = NO;
-	if (strcmp(action, "eating") == 0)
-		is_eating = YES;
-	gettimeofday(&t, NULL);
-	pthread_mutex_lock(&node->terminal_mtx);
-	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL);
-	printf("%lld %d is %s\n", tm, phindex, action);
-	pthread_mutex_unlock(&node->terminal_mtx);
-	tm = (t.tv_sec * 1000000LL + t.tv_usec);
-	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < time_to_state * 1000LL)
-	{
-		usleep(500);
-		if (is_eating == NO && death_check(node, t, phindex) == DEAD)
-			return (DEAD);
-		gettimeofday(&t, NULL);
-	}
-	return (ALIVE);
-}
-
-static void	wait_death_time(t_philo *node)
-{
-	struct timeval	t;
-	long long		udeath;
-
-	udeath = node->tt_die * 1000LL;
-	gettimeofday(&t, NULL);
-	while (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) < udeath)
-	{
-		usleep(100);
-		gettimeofday(&t, NULL);
-	}
-	announce_death(node, 1);
 }
 
 static int	try_fork(t_list *lst, int side)
@@ -131,4 +112,17 @@ static int	try_fork(t_list *lst, int side)
 		pthread_mutex_unlock(&lst->next->fork_mtx);
 	}
 	return (NO);
+}
+
+static int	drop_fork(t_list *lst)
+{
+	pthread_mutex_lock(&lst->fork_mtx);
+	lst->fork_state = UNLOCKED;
+	pthread_mutex_unlock(&lst->fork_mtx);
+	lst->forks_held--;
+	pthread_mutex_lock(&lst->next->fork_mtx);
+	lst->next->fork_state = UNLOCKED;
+	pthread_mutex_unlock(&lst->next->fork_mtx);
+	lst->forks_held--;
+	return (ALIVE);
 }

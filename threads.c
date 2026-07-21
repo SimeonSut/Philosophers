@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/19 17:54:44 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/21 17:43:18 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,30 @@ void		thread_setup(t_philo *node)
 	closing_loop(lst);
 }
 
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action)
+{
+	int	target_index;
+
+	target_index = 0;
+	if (action == LOCK)
+	{
+		if (phindex % 2 == 0)
+			target_index = ((phindex - 2) / 2);
+		else
+			target_index = ((phindex - 1) / 2);
+		pthread_mutex_lock(&node->gates_mtx[target_index]);
+	}
+	else if (action == UNLOCK && lst->gate_count == 0)
+	{
+		lst->gate_count++;
+		if (phindex % 2 == 0)
+			target_index = ((phindex - 2) / 2);
+		else
+			target_index = ((phindex - 1) / 2);
+		pthread_mutex_unlock(&node->gates_mtx[target_index]);
+	}
+}
+
 static void	*start(void	*arg)
 {
 	t_philo	*node;
@@ -52,7 +76,11 @@ static void	*start(void	*arg)
 	routine(node, lst, phindex, states);
 	pthread_mutex_lock(&node->t_philo_mtx);
 	if (node->death_check == DEAD)
-		return (pthread_mutex_unlock(&node->t_philo_mtx), NULL);
+	{
+		pthread_mutex_unlock(&node->t_philo_mtx);
+		return (NULL);
+	}
+	pthread_mutex_unlock(&node->t_philo_mtx);
 	return (arg);
 }
 

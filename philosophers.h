@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/20 22:16:17 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/21 17:56:28 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,14 @@ void	thread_setup(t_philo *node);
 
 //---ROUTINES.C---
 void	routine(t_philo *node, t_list *lst, int phindex, int *states);
+void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
 
 //---ROUTINE_UTILS.C---
-void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
 int		death_check(t_philo *node, struct timeval t, int phindex);
+void	wait_death_time(t_philo *node);
 void	announce_death(t_philo *node, int phindex);
 void	announce_fork_taken(t_philo *node, int phindex);
 void	announce_thinking(t_philo *node, int phindex);
-
 
 typedef enum e_exit
 {
