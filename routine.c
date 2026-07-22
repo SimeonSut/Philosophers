@@ -6,42 +6,46 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:34:46 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/21 18:00:01 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:43:06 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static int	take_a_fork(t_philo *node, t_list *lst, int phindex, int side);
-static int	state(t_philo *node, char *action, int time_to_state, int phindex);
+static int	take_a_fork(t_philo *node, t_list *lst, int side);
+static int	state(t_philo *node, t_list *lst, char *action, int time_to_state);
 static int	try_fork(t_list *lst, int side);
 static int	drop_fork(t_list *lst);
 
-void routine(t_philo *node, t_list *lst, int phindex, int *states)
+void	routine(t_philo *node, t_list *lst, int *states)
 {
-	struct timeval	t;
-
-	gettimeofday(&t, NULL);
-	while (death_check(node, t, phindex) == ALIVE)
+	store_time(lst);
+	while (death_check(node, lst) == ALIVE)
 	{
-		if (take_a_fork(node, lst, phindex, LEFT) == DEAD)
+		if (take_a_fork(node, lst, LEFT) == DEAD)
 			break ;
-		if (!lst->next || take_a_fork(node, lst, phindex, RIGHT) == DEAD)
+		if (!lst->next || take_a_fork(node, lst, RIGHT) == DEAD)
 			break ;
-		open_close_gates(node, lst, phindex, UNLOCK);
-		if (state(node, "eating", states[EAT], phindex) == DEAD)
+		open_close_gates(node, lst, UNLOCK);
+		store_time(lst);
+		if (state(node, lst, "eating", states[EAT]) == DEAD)
+			break ;
+		if (node->count != -1 && is_eat_count_ok(node, lst, ACT) == NO)
+			break ;
+		if (death_check(node, lst) == DEAD)
 			break ;
 		drop_fork(lst);
-		if (state(node, "sleeping", states[SLEEP], phindex) == DEAD)
+		if (state(node, lst, "sleeping", states[SLEEP]) == DEAD)
 			break ;
-		announce_thinking(node, phindex);
-		gettimeofday(&t, NULL);
+		if (death_check(node, lst) == DEAD)
+			break ;
+		announce_thinking(node, lst);
 	}
 	if (!lst->next)
-		wait_death_time(node);
+		wait_death_time(node, lst);
 }
 
-static int	state(t_philo *node, char *action, int time_to_state, int phindex)
+static int	state(t_philo *node, t_list *lst, char *action, int time_to_state)
 {
 	struct timeval		t;
 	struct timeval		death_count_t;
@@ -50,16 +54,15 @@ static int	state(t_philo *node, char *action, int time_to_state, int phindex)
 	gettimeofday(&t, NULL);
 	tm = (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL);
 	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld %d is %s\n", tm, phindex, action);
+	printf("%lld %d is %s\n", tm, lst->i, action);
 	pthread_mutex_unlock(&node->terminal_mtx);
 	tm = (t.tv_sec * 1000000LL + t.tv_usec);
 	death_count_t = t;
 	while (((t.tv_sec * 1000000LL + t.tv_usec) - tm) < time_to_state * 1000LL)
 	{
 		usleep(500);
-		if (death_check(node, death_count_t, phindex) == DEAD)
+		if (death_check(node, lst) == DEAD)
 		{
-			printf("bla\n");
 			return (DEAD);
 		}
 		gettimeofday(&t, NULL);
@@ -67,22 +70,25 @@ static int	state(t_philo *node, char *action, int time_to_state, int phindex)
 	return (ALIVE);
 }
 
-static int	take_a_fork(t_philo *node, t_list *lst, int phindex, int side)
+static int	take_a_fork(t_philo *node, t_list *lst, int side)
 {
 	struct timeval	t;
 
+	if (node->count != -1 && is_eat_count_ok(node, lst, CHECK) == NO)
+		return (DEAD);
 	gettimeofday(&t, NULL);
-	while (death_check(node, t, phindex) == ALIVE)
+	while (death_check(node, lst) == ALIVE)
 	{
+		if (node->count != -1 && is_eat_count_ok(node, lst, CHECK) == NO)
+			return (DEAD);
 		if (try_fork(lst, side) == YES)
 		{
-			lst->forks_held++;
-			announce_fork_taken(node, phindex);
+			announce_fork_taken(node, lst);
 			break ;
 		}
 		usleep(10);
 	}
-	if (death_check(node, t, phindex) == DEAD)
+	if (death_check(node, lst) == DEAD)
 		return (DEAD);
 	return (ALIVE);
 }
@@ -119,10 +125,8 @@ static int	drop_fork(t_list *lst)
 	pthread_mutex_lock(&lst->fork_mtx);
 	lst->fork_state = UNLOCKED;
 	pthread_mutex_unlock(&lst->fork_mtx);
-	lst->forks_held--;
 	pthread_mutex_lock(&lst->next->fork_mtx);
 	lst->next->fork_state = UNLOCKED;
 	pthread_mutex_unlock(&lst->next->fork_mtx);
-	lst->forks_held--;
 	return (ALIVE);
 }

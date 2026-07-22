@@ -6,13 +6,16 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/13 18:14:11 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:37:00 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int main(int argc, char **argv)
+static void	clean_t_list(t_list *lst);
+static void	clean_t_philo(t_philo *node);
+
+int	main(int argc, char **argv)
 {
 	t_philo	*node;
 
@@ -27,22 +30,48 @@ int main(int argc, char **argv)
 	while (node->list->i != 1)
 		node->list = node->list->next;
 	thread_setup(node);
+	clean_t_list(node->list);
+	clean_t_philo(node);
 	return (SUCCESS);
 }
 
-/*
- * memset
- * printf
- * malloc
- * free
- * write
- * usleep
- * gettimeofday
- * pthread_create
- * pthread_detach
- * pthread_join
- * pthread_mutex_init
- * pthread_mutex_destroy
- * pthread_mutex_lock
- * pthread_mutex_unlock
- */
+static void	clean_t_list(t_list *lst)
+{
+	t_list	*target;
+	int		i;
+
+	i = lst->i;
+	if (lst->next)
+		lst = lst->next;
+	while (lst->i != i)
+	{
+		pthread_mutex_destroy(&lst->fork_mtx);
+		free(lst->thread);
+		target = lst;
+		lst = lst->next;
+		free(target);
+		target = NULL;
+	}
+	pthread_mutex_destroy(&lst->fork_mtx);
+	free(lst->thread);
+	free(lst);
+	lst = NULL;
+}
+
+static void	clean_t_philo(t_philo *node)
+{
+	int	i;
+	int	gates_nbr;
+
+	i = 0;
+	gates_nbr = node->n_of_philos / 2;
+	if (node->n_of_philos % 2 != 0)
+		gates_nbr++;
+	while (i < gates_nbr)
+		pthread_mutex_destroy(&node->gates_mtx[i++]);
+	free(node->gates_mtx);
+	pthread_mutex_destroy(&node->t_philo_mtx);
+	pthread_mutex_destroy(&node->terminal_mtx);
+	free(node);
+	node = NULL;
+}

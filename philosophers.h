@@ -6,12 +6,12 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 18:40:05 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/21 17:56:28 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:42:48 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILOSOPHERS_D
-# define PHILOSOPHERS_D
+#ifndef PHILOSOPHERS_H
+# define PHILOSOPHERS_H
 
 # include <string.h>
 # include <stdio.h>
@@ -20,24 +20,25 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-typedef struct	s_list
+typedef struct s_list
 {
 	int				i;
 	int				gate_count;
 	int				fork_state;
-	int				forks_held;
+	int				eat_count;
+	long long		last_eat_tm;
 	pthread_t		*thread;
 	pthread_mutex_t	fork_mtx;
-	struct	s_list	*next;
+	struct s_list	*next;
 }				t_list;
 
-typedef struct  s_philo
+typedef struct s_philo
 {
 	int				n_of_philos;
 	int				tt_die;
 	int				tt_eat;
 	int				tt_sleep;
-	int				t_must_eat;
+	int				count;
 	int				death_check;
 	long long		ustart;
 	t_list			*list;
@@ -80,15 +81,19 @@ int		t_philo_additional_setup(t_philo *node, char **argv);
 void	thread_setup(t_philo *node);
 
 //---ROUTINES.C---
-void	routine(t_philo *node, t_list *lst, int phindex, int *states);
-void	open_close_gates(t_philo *node, t_list *lst, int phindex, int action);
+void	routine(t_philo *node, t_list *lst, int *states);
 
 //---ROUTINE_UTILS.C---
-int		death_check(t_philo *node, struct timeval t, int phindex);
-void	wait_death_time(t_philo *node);
-void	announce_death(t_philo *node, int phindex);
-void	announce_fork_taken(t_philo *node, int phindex);
-void	announce_thinking(t_philo *node, int phindex);
+void	open_close_gates(t_philo *node, t_list *lst, int action);
+void	announce_death(t_philo *node, t_list *lst);
+void	announce_fork_taken(t_philo *node, t_list *lst);
+void	announce_thinking(t_philo *node, t_list *lst);
+int		is_eat_count_ok(t_philo *node, t_list *lst, int mode);
+
+//---TIME_UTILS.C---
+int		death_check(t_philo *node, t_list *lst);
+void	wait_death_time(t_philo *node, t_list *lst);
+void	store_time(t_list *lst);
 
 typedef enum e_exit
 {
@@ -106,6 +111,8 @@ typedef enum e_exit
 	NO = 1,
 	ALIVE = 0,
 	DEAD = 1,
-} t_exit;
+	CHECK = 0,
+	ACT = 1
+}	t_exit;
 
 #endif

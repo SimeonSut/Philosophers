@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 19:40:17 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/14 23:03:23 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:38:02 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	ft_atoi(const char *nptr)
 
 int	t_philo_additional_setup(t_philo *node, char **argv)
 {
-	int	gates_nbr;
+	int				gates_nbr;
 	struct timeval	tm;
 
 	gates_nbr = node->n_of_philos / 2;
@@ -67,17 +67,19 @@ int	t_philo_additional_setup(t_philo *node, char **argv)
 		gates_nbr++;
 	if (argv[5])
 	{
-		node->t_must_eat = ft_atoi(argv[5]);
-		if (node->t_must_eat <= 0)
+		node->count = ft_atoi(argv[5]);
+		if (node->count <= 0)
 			return (write(2, "wrong must eat input\n", 22), ERROR);
 	}
+	else
+		node->count = -1;
 	node->gates_mtx = malloc(gates_nbr * sizeof(pthread_mutex_t));
 	if (!node->gates_mtx)
 		return (ERROR);
 	while (--gates_nbr >= 0)
 		if (pthread_mutex_init(&node->gates_mtx[gates_nbr], NULL) == -1)
-			return (ERROR);//mutex init error, free to add here as well
-	node->death_check= ALIVE;
+			return (ERROR);
+	node->death_check = ALIVE;
 	node->ustart = (tm.tv_sec * 1000000LL + tm.tv_usec);
 	return (SUCCESS);
 }

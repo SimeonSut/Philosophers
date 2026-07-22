@@ -6,86 +6,95 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/28 22:24:03 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/21 17:56:16 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:43:33 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int		death_check(t_philo *node, struct timeval t, int phindex)
+void	open_close_gates(t_philo *node, t_list *lst, int action)
 {
-	long long		check_tm;
+	int	target_index;
+
+	target_index = 0;
+	if (action == LOCK)
+	{
+		if (lst->i % 2 == 0)
+			target_index = ((lst->i - 2) / 2);
+		else
+			target_index = ((lst->i - 1) / 2);
+		pthread_mutex_lock(&node->gates_mtx[target_index]);
+	}
+	else if (action == UNLOCK && lst->gate_count == 0)
+	{
+		lst->gate_count++;
+		if (lst->i % 2 == 0)
+			target_index = ((lst->i - 2) / 2);
+		else
+			target_index = ((lst->i - 1) / 2);
+		pthread_mutex_unlock(&node->gates_mtx[target_index]);
+	}
+}
+
+void	announce_death(t_philo *node, t_list *lst)
+{
+	struct timeval	t;
 	long long		tm;
 
-	pthread_mutex_lock(&node->t_philo_mtx);
-	if (node->death_check == DEAD)
+	gettimeofday(&t, NULL);
+	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld Oh nooo, philosopher %d has died!\n", tm, lst->i);
+	pthread_mutex_unlock(&node->terminal_mtx);
+}
+
+void	announce_fork_taken(t_philo *node, t_list *lst)
+{
+	struct timeval	t;
+	long long		tm;
+
+	gettimeofday(&t, NULL);
+	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld philosopher %d has taken a fork!\n", tm, lst->i);
+	pthread_mutex_unlock(&node->terminal_mtx);
+}
+
+void	announce_thinking(t_philo *node, t_list *lst)
+{
+	struct timeval	t;
+	long long		tm;
+
+	gettimeofday(&t, NULL);
+	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
+	pthread_mutex_lock(&node->terminal_mtx);
+	printf("%lld %d is thinking\n", tm, lst->i);
+	pthread_mutex_unlock(&node->terminal_mtx);
+}
+
+int	is_eat_count_ok(t_philo *node, t_list *lst, int mode)
+{
+	t_list	*check_lst;
+
+	if (mode == ACT)
 	{
+		pthread_mutex_lock(&node->t_philo_mtx);
+		lst->eat_count++;
 		pthread_mutex_unlock(&node->t_philo_mtx);
-		return (DEAD);
 	}
-	pthread_mutex_unlock(&node->t_philo_mtx);
-	check_tm = (t.tv_sec * 1000000LL + t.tv_usec);
-	gettimeofday(&t, NULL);
-	tm = (t.tv_sec * 1000000LL + t.tv_usec);
-	pthread_mutex_lock(&node->t_philo_mtx);
-	if ((tm - check_tm) >= node->tt_die * 1000LL)
+	check_lst = lst->next;
+	while (check_lst->i != lst->i)
 	{
-		node->death_check = DEAD;
+		pthread_mutex_lock(&node->t_philo_mtx);
+		if (check_lst->eat_count < node->count)
+		{
+			pthread_mutex_unlock(&node->t_philo_mtx);
+			return (YES);
+		}
 		pthread_mutex_unlock(&node->t_philo_mtx);
-		announce_death(node, phindex);
-		return (DEAD);
+		check_lst = check_lst->next;
 	}
-	pthread_mutex_unlock(&node->t_philo_mtx);
-	return (ALIVE);
-}
-
-void	wait_death_time(t_philo *node)
-{
-	struct timeval	t;
-	long long		udeath;
-
-	udeath = node->tt_die * 1000LL;
-	gettimeofday(&t, NULL);
-	while (((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) < udeath)
-	{
-		usleep(100);
-		gettimeofday(&t, NULL);
-	}
-	announce_death(node, 1);
-}
-
-void	announce_death(t_philo *node, int phindex)
-{
-	struct timeval	t;
-	long long		tm;
-
-	gettimeofday(&t, NULL);
-	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
-	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld Oh nooo, philosopher %d has died!\n", tm, phindex);
-	pthread_mutex_unlock(&node->terminal_mtx);
-}
-
-void	announce_fork_taken(t_philo *node, int phindex)
-{
-	struct timeval	t;
-	long long		tm;
-
-	gettimeofday(&t, NULL);
-	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
-	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld philosopher %d has taken a fork!\n", tm, phindex);
-	pthread_mutex_unlock(&node->terminal_mtx);
-}
-
-void	announce_thinking(t_philo *node, int phindex)
-{
-	struct timeval	t;
-	long long		tm;
-
-	gettimeofday(&t, NULL);
-	tm = ((t.tv_sec * 1000000LL + t.tv_usec) - node->ustart) / 1000LL;
-	pthread_mutex_lock(&node->terminal_mtx);
-	printf("%lld %d is thinking\n", tm, phindex);
-	pthread_mutex_unlock(&node->terminal_mtx);
+	if (lst->eat_count < node->count)
+		return (YES);
+	return (NO);
 }

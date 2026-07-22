@@ -6,14 +6,14 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 20:21:49 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/20 22:01:03 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/22 21:39:52 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
 static int		int_filter(char *input, int len);
-static int  	is_all_digit(char *input);
+static int		is_all_digit(char *input);
 static t_philo	*t_philo_init(char **argv);
 static t_list	*t_list_init(t_philo *node, t_list *first, int i);
 
@@ -54,7 +54,7 @@ t_philo	*check_n_initialize(char **argv)
 	{
 		node->list->next = t_list_init(node, first, i);
 		if (!node || !node->list || !node->list->next)
-			return (NULL);//free all structs here
+			return (NULL);
 		node->list = node->list->next;
 	}
 	return (node);
@@ -87,7 +87,7 @@ static int	int_filter(char *input, int len)
 
 	i = 0;
 	int_max = "2147483647";
-	if (len > 21 ||  is_all_digit(input) == ERROR)
+	if (len > 21 || is_all_digit(input) == ERROR)
 		return (write(2, "wrong input: numerical value required\n", 39), ERROR);
 	if (ft_strcmp("-2147483648", input) == 0)
 		return (SUCCESS);
@@ -120,7 +120,7 @@ static int	int_filter(char *input, int len)
  * 		SUCCESS if all is ascii
  * 		Failure if anything is not ascii
  */
-static int  is_all_digit(char *input)
+static int	is_all_digit(char *input)
 {
 	int	i;
 
@@ -154,7 +154,7 @@ static int  is_all_digit(char *input)
  */
 static t_philo	*t_philo_init(char **argv)
 {
-	t_philo *node;
+	t_philo	*node;
 
 	node = malloc(sizeof(t_philo));
 	if (!node)
@@ -174,9 +174,9 @@ static t_philo	*t_philo_init(char **argv)
 	if (t_philo_additional_setup(node, argv) == ERROR)
 		return (free(node), NULL);
 	if (pthread_mutex_init(&node->t_philo_mtx, NULL) == -1)
-		return (NULL);//mutex init error, free to add here as well
+		return (NULL);
 	if (pthread_mutex_init(&node->terminal_mtx, NULL) == -1)
-		return (NULL);//mutex init error, free to add here as well
+		return (NULL);
 	return (node);
 }
 
@@ -207,7 +207,8 @@ static t_list	*t_list_init(t_philo *node, t_list *first, int i)
 	new->i = i;
 	new->gate_count = 0;
 	new->fork_state = UNLOCKED;
-	new->forks_held = 0;
+	new->eat_count = 0;
+	new->last_eat_tm = 0;
 	new->thread = malloc(sizeof(pthread_t));
 	if (!new->thread)
 		return (free(node), NULL);
