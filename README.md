@@ -120,10 +120,4 @@ Every state change is logged on its own line as `timestamp_in_ms philosopher_id 
 
 ### Use of AI
 
-AI was used as a **learning and documentation aid**, not as a generator for the graded logic:
-
-- Discussing the theory behind the problem — the thread lifecycle (`pthread_create` / `pthread_join`) and how mutexes prevent data races on shared state.
-- Comparing deadlock-avoidance strategies (staggering neighbours, resource ordering) before settling on the gate-based approach used here.
-- Drafting and structuring this `README.md`.
-
-> **Note:** revise this section so it reflects exactly how *you* used AI on this project. During peer evaluation you must be able to explain and defend every part of the code, including anything AI helped with.
+- AI was used to create this README.md file
