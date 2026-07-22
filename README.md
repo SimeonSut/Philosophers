@@ -113,7 +113,7 @@ Every state change is logged on its own line as `timestamp_in_ms philosopher_id 
 
 ## Resources
 
-- The dining philosophers problem — E. W. Dijkstra's classic concurrency problem, and the standard descriptions of the circular-wait / deadlock conditions.
+- The Linux Programming Interface, chapters 29 to 33 about threads.
 - POSIX threads manual pages: `pthread_create`, `pthread_join`, `pthread_detach`, `pthread_mutex_init`, `pthread_mutex_lock`, `pthread_mutex_unlock`, `pthread_mutex_destroy`.
 - Time and scheduling manual pages: `gettimeofday`, `usleep`.
 - General reading on mutexes, race conditions, and deadlock avoidance in multithreaded programs.
