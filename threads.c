@@ -6,7 +6,7 @@
 /*   By: ssutarmi <ssutarmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 17:32:37 by ssutarmi          #+#    #+#             */
-/*   Updated: 2026/07/22 21:44:05 by ssutarmi         ###   ########.fr       */
+/*   Updated: 2026/07/23 16:49:08 by ssutarmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,19 +48,18 @@ static void	*start(void	*arg)
 	states[SLEEP] = node->tt_sleep;
 	if (node->list->next)
 		node->list = node->list->next;
+	if (lst->i % 2 != 0)
+		open_close_gates(node, lst, LOCK);
 	pthread_mutex_unlock(&node->t_philo_mtx);
-	open_close_gates(node, lst, LOCK);
+	if (lst->i % 2 == 0)
+		open_close_gates(node, lst, LOCK);
 	routine(node, lst, states);
 	if (lst->gate_count == 0)
 		open_close_gates(node, lst, UNLOCK);
 	pthread_mutex_lock(&node->t_philo_mtx);
 	if (node->death_check == DEAD)
-	{
-		pthread_mutex_unlock(&node->t_philo_mtx);
-		return (NULL);
-	}
-	pthread_mutex_unlock(&node->t_philo_mtx);
-	return (arg);
+		return (pthread_mutex_unlock(&node->t_philo_mtx), NULL);
+	return (pthread_mutex_unlock(&node->t_philo_mtx), arg);
 }
 
 static void	closing_loop(t_list *lst)
